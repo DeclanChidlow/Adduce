@@ -1,35 +1,37 @@
-title = ""
-locale = "en_AU"
-author = ""
-
-social.names = ""
-social.links = ["","",""]
+# template info
+title = "Business Update"
+locale = "AWST"
+author = "Toast fox"
 
 
-[defaults]
-[[defaults.scope]]
-path = ""
-type = ""
+# blocks
+[main]
 
-[[defaults.values]]
-layout = ""
-permalink = ""
+# blocks contain words and a style
+[[main.block]]
+content = "Hello"
+style = "h4"
 
+[[main.block]]
+content = "world"
+style = "h5"
 
-[[defaults.scope]]
-path = ""
+# custom html
+# the html style will tell the compiler to ignore styling
+[[main.block]]
+content = "<h2>im html!</h2>"
+style = "html"
 
-
-[[default.values]]
-categories = ""
-
-exclude = [
-"LICENSE",
-"COPYING.LESSER",
-"README.md",
-"Makefile"
-]
+# breaklines do not require content
+[[main.block]]
+style = "br"
 
 
+[[main.block]]
+# content will default to PLACEHOLER
+# style will default to <p>
 
-
+# html can also be imported from other files!
+[[main.block]]
+from_str = "text.html"
+style = "html"

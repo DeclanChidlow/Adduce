@@ -3,6 +3,7 @@ use std::{io::Read, str::from_utf8};
 use crate::structs::config::Conf;
 
 // given a directory return the content
+#[allow(dead_code)]
 pub fn fs_to_str(directory: &str) -> String {
     let file = std::fs::read(directory).expect("file could not be found!");
 
@@ -10,11 +11,11 @@ pub fn fs_to_str(directory: &str) -> String {
 
     String::from(file_str)
 }
-
+#[allow(dead_code)]
 pub fn str_to_fs(directory: &str, content: &str) {
     std::fs::write(directory, content).expect("failed to write to file");
 }
-
+#[allow(dead_code)]
 pub fn copy_dir(input: &str, generated: &str) {
     // if directory exists, remove and remake it, otherwise just make the dir
     match std::fs::read_dir(generated) {
@@ -28,7 +29,7 @@ pub fn copy_dir(input: &str, generated: &str) {
     // for every file in the input directory
     for x in std::fs::read_dir(input)
         .expect("failed to read input")
-        .into_iter()
+
     {
         // create a new string, and let the content = the current file's content
         let mut file_str = String::new();
@@ -43,7 +44,7 @@ pub fn copy_dir(input: &str, generated: &str) {
             format!("{}/{}", generated, x.unwrap().file_name().to_str().unwrap()),
             file_str,
         )
-        .expect(&format!("failed to write new file"));
+        .expect("failed to write new file");
     }
 }
 

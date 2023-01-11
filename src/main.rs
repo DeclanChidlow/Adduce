@@ -1,43 +1,29 @@
 mod lib {
 
-    pub mod rfs;
     pub mod html;
+    pub mod rfs;
 }
 mod structs {
     pub mod config;
     pub mod html;
 }
 
-use crate::lib::{rfs::{copy_dir, fs_to_str}, html::md_paragraph};
-use lib::{rfs::{import_conf, str_to_fs}};
+use crate::lib::rfs::{fs_to_str};
+use lib::rfs::{import_conf, str_to_fs};
 pub use serde::{Deserialize, Serialize};
-use structs::html::{Div, Style};
+use structs::{html::{Div, Style}};
 
 fn main() {
-
-    // clone a directory
-    //copy_dir("origin", "generated");
-
-    // return the content of a file
-    //println!("{:?}", fs_to_str("bar/foobo"));
-
-    // define a file from string
-    //str_to_fs("generated/index.html", &gen);
-
     // import config
     let conf = import_conf("config/example.toml");
 
-
-    // define hyml based on config and 
+    // define hyml based on config and
     let html = compile_html(conf);
 
-    str_to_fs("generated/index.html", &html);
-
-
+    str_to_fs("index.html", &html);
 }
 
-fn compile_html(conf: structs::config::Conf)  -> String {
-
+fn compile_html(conf: structs::config::Conf) -> String {
     // all divs are compiled and added to master
     let mut master = String::from("<html>");
 
@@ -48,28 +34,42 @@ fn compile_html(conf: structs::config::Conf)  -> String {
     // body
 
     master += "\n<body>\n";
-    // head div
+
+
+    // div derived from config conditons
 
     let mut div = Div::new();
 
     if let Some(i) = conf.title {
-        div.add(Style::H1, &i);
+        div.add(Style::h1, &i);
     };
     if let Some(i) = conf.locale {
-        div.add(Style::H2, &i);
+        div.add(Style::h2, &i);
     };
     if let Some(i) = conf.author {
-        div.add(Style::H3, &i);
+        div.add(Style::h3, &i);
     };
     if let Some(i) = conf.social {
         if let Some(x) = i.name {
-            div.add(Style::H4, &x);
+            div.add(Style::h4, &x);
         };
     };
 
-    master +=  &div.compile();
+    // div derived from toml block vector (user generated)
+    let mut yml_div = Div::new();
 
+    for x in conf.main.unwrap().block.iter() {
+        if x.from_str.is_none() {
+            yml_div.add(x.style.clone().unwrap_or(Style::None), &x.content.clone().unwrap_or_else(|| String::from("PLACEHOLDER")));
+        }else {
+            yml_div.add(x.style.clone().unwrap_or(Style::None), &fs_to_str(&x.from_str.clone().unwrap()));
+        };
 
-    master += "\n</body>\n</html>";
-    master
+    }
+    // compiling divs
+    format!(
+        "{master}{}{}\n</body>\n</html>",
+        div.compile(),
+        yml_div.compile(),
+    )
 }

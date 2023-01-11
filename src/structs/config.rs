@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use super::html::Style;
+
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Conf {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -11,9 +13,7 @@ pub struct Conf {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub social: Option<Social>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub defaults: Option<Defaults>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub exclude: Option<Vec<String>>,
+    pub main: Option<Main>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 
@@ -24,28 +24,15 @@ pub struct Social {
     pub links: Option<Vec<String>>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
-
-pub struct Defaults {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub scope: Option<Vec<Scope>>,
+pub struct Main {
+    pub block: Vec<Object>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
-
-pub struct Scope {
+pub struct Object {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub path: Option<String>,
+    pub content: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub values: Option<Values>,
+    pub style: Option<Style>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub r#type: Option<String>,
-}
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
-
-pub struct Values {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub layout: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub permanlink: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub categories: Option<String>,
+    pub from_str: Option<String>,
 }
