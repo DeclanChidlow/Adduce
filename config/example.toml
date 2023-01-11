@@ -1,0 +1,35 @@
+title = ""
+locale = "en_AU"
+author = ""
+
+social.names = ""
+social.links = ["","",""]
+
+
+[defaults]
+[[defaults.scope]]
+path = ""
+type = ""
+
+[[defaults.values]]
+layout = ""
+permalink = ""
+
+
+[[defaults.scope]]
+path = ""
+
+
+[[default.values]]
+categories = ""
+
+exclude = [
+"LICENSE",
+"COPYING.LESSER",
+"README.md",
+"Makefile"
+]
+
+
+
+
