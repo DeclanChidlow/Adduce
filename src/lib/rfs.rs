@@ -11,6 +11,10 @@ pub fn fs_to_str(directory: &str) -> String {
     String::from(file_str)
 }
 
+pub fn str_to_fs(directory: &str, content: &str) {
+    std::fs::write(directory, content).expect("failed to write to file");
+}
+
 pub fn copy_dir(input: &str, generated: &str) {
     // if directory exists, remove and remake it, otherwise just make the dir
     match std::fs::read_dir(generated) {
