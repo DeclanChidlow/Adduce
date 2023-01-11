@@ -1,33 +1,56 @@
 use serde::{Deserialize, Serialize};
 #[derive(Default, Debug, Clone)]
 pub struct Div {
-    pub style: Vec<Style>,
-    pub text: Vec<String>,
+    pub element: Vec<Values>
 }
+#[derive(Default, Debug, Clone)]
+pub struct Values {
+    pub style: Option<Style>,
+    pub text: Option<String>,
+    pub id: Option<String>,
+}
+
 impl Div {
     #[allow(dead_code)]
     pub fn new() -> Self {
         Self::default()
     }
 
-    #[allow(dead_code)]
-    pub fn add(&mut self, style: Style, text: &str) -> Self {
-        self.style.push(style);
-        self.text.push(String::from(text));
+    pub fn element(&mut self, element: Values) -> Self {
+        self.element.push(element);
         self.to_owned()
+
     }
 
-    #[allow(dead_code)]
-    pub fn br(&mut self) -> Self {
-        self.text.push(String::new());
-        self.style.push(Style::br);
-
-        self.to_owned()
-    }
 
     #[allow(dead_code)]
     pub fn compile(&self) -> String {
         div_compiler(self)
+    }
+
+
+}
+impl  Values {
+
+    #[allow(dead_code)]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn style(&mut self, style: Style) -> Self {
+
+        self.style = Some(style);
+        self.to_owned()
+    }
+    pub fn text(&mut self, text: &str) -> Self {
+
+        self.text = Some(String::from(text));
+        self.to_owned()
+    }
+    pub fn id(&mut self, id: &str) -> Self {
+
+        self.id = Some(String::from(id));
+        self.to_owned()
     }
 }
 
@@ -35,17 +58,29 @@ impl Div {
 fn div_compiler(input: &Div) -> String {
     let mut master = String::from("<div>");
 
-    for x in 0..input.style.len() {
-        let style_in = &input.style[x];
-        let style = style_from_enum(style_in);
-        let text = &input.text[x];
+    for x in input.element.iter() {
+
+        let text = x.text.clone().unwrap_or(String::from("PLACEHOLDER"));
+        let style = style_from_enum(&x.clone().style.unwrap_or(Style::None));
+        let id = x.clone().id;
+
+        let mut id = match id {
+            None => String::new(),
+            Some(a) => format!(" id=\"{a}\""),
+        };
+
+
+        println!("{}", id);
+        if id == String::from("id=\"\"") {
+            id = String::new();
+        };
 
         // exceptions
 
         master = match &style as &str {
             "br" => format!("{master}\n</br>\n"),
             "html" => format!("{master}\n{text}"),
-            _ => format!("{master}\n<{style}> {text} </{style}>"),
+            _ => format!("{master}\n<{style}{id}> {text} </{style}>"),
         };
     }
 
