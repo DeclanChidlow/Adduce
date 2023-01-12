@@ -1,14 +1,13 @@
 use serde::{Deserialize, Serialize};
+
+use crate::lib::rfs::fs_to_str;
+
+use super::config::Object;
 #[derive(Default, Debug, Clone)]
 pub struct Div {
-    pub element: Vec<Values>
+    pub element: Vec<Object>
 }
-#[derive(Default, Debug, Clone)]
-pub struct Values {
-    pub style: Option<Style>,
-    pub text: Option<String>,
-    pub id: Option<String>,
-}
+
 
 impl Div {
     #[allow(dead_code)]
@@ -16,7 +15,7 @@ impl Div {
         Self::default()
     }
 
-    pub fn element(&mut self, element: Values) -> Self {
+    pub fn element(&mut self, element: Object) -> Self {
         self.element.push(element);
         self.to_owned()
 
@@ -30,7 +29,7 @@ impl Div {
 
 
 }
-impl  Values {
+impl  Object {
 
     #[allow(dead_code)]
     pub fn new() -> Self {
@@ -52,30 +51,35 @@ impl  Values {
         self.id = Some(String::from(id));
         self.to_owned()
     }
+    pub fn from_str(&mut self, directory: &str) -> Self {
+        self.from_str = Some(String::from(directory));
+        self.to_owned()
+    }
 }
 
 #[allow(dead_code)]
 fn div_compiler(input: &Div) -> String {
+
     let mut master = String::from("<div>");
 
     for x in input.element.iter() {
 
-        let text = x.text.clone().unwrap_or(String::from("PLACEHOLDER"));
-        let style = style_from_enum(&x.clone().style.unwrap_or(Style::None));
-        let id = x.clone().id;
+        let text= x.text.as_ref().unwrap();
 
-        let mut id = match id {
-            None => String::new(),
-            Some(a) => format!(" id=\"{a}\""),
+        let style = style_from_enum(x.style.as_ref().unwrap());
+
+        let id = String::new();
+
+        if x.id.is_some() {
+            format!(" id=\"{}\"",  id);
+
         };
-
-
-        println!("{}", id);
-        if id == String::from("id=\"\"") {
-            id = String::new();
-        };
-
+        println!("{:?}", x.from_str);
         // exceptions
+        let text = match &x.from_str {
+            Some(a) => fs_to_str(&a),
+            None => text.to_owned(),
+        };
 
         master = match &style as &str {
             "br" => format!("{master}\n</br>\n"),
