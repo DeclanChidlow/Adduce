@@ -5,9 +5,8 @@ use crate::lib::rfs::fs_to_str;
 use super::config::Object;
 #[derive(Default, Debug, Clone)]
 pub struct Div {
-    pub element: Vec<Object>
+    pub element: Vec<Object>,
 }
-
 
 impl Div {
     #[allow(dead_code)]
@@ -18,36 +17,28 @@ impl Div {
     pub fn element(&mut self, element: Object) -> Self {
         self.element.push(element);
         self.to_owned()
-
     }
-
 
     #[allow(dead_code)]
     pub fn compile(&self) -> String {
         div_compiler(self)
     }
-
-
 }
-impl  Object {
-
+impl Object {
     #[allow(dead_code)]
     pub fn new() -> Self {
         Self::default()
     }
 
     pub fn style(&mut self, style: Style) -> Self {
-
         self.style = Some(style);
         self.to_owned()
     }
     pub fn text(&mut self, text: &str) -> Self {
-
         self.text = Some(String::from(text));
         self.to_owned()
     }
     pub fn id(&mut self, id: &str) -> Self {
-
         self.id = Some(String::from(id));
         self.to_owned()
     }
@@ -59,20 +50,17 @@ impl  Object {
 
 #[allow(dead_code)]
 fn div_compiler(input: &Div) -> String {
-
     let mut master = String::from("<div>");
 
     for x in input.element.iter() {
+        let text = x.text.as_ref().unwrap();
 
-        let text= x.text.as_ref().unwrap();
+        let style = style_from_enum(x.style.as_ref().unwrap_or(&Style::None));
 
-        let style = style_from_enum(x.style.as_ref().unwrap());
-
-        let id = String::new();
+        let mut id = String::new();
 
         if x.id.is_some() {
-            format!(" id=\"{}\"",  id);
-
+            id = format!(" id=\"{}\"", x.id.as_ref().unwrap());
         };
         println!("{:?}", x.from_str);
         // exceptions
