@@ -30,9 +30,11 @@ pub struct Main {
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Object {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub content: Option<String>,
+    pub text: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub style: Option<Style>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub from_str: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
 }
