@@ -8,11 +8,10 @@ mod structs {
     pub mod html;
 }
 
-use crate::{structs::{config::Object}};
+use crate::structs::config::Object;
 use lib::rfs::{import_conf, str_to_fs};
 pub use serde::{Deserialize, Serialize};
 use structs::html::{Div, Style};
-
 
 fn main() {
     // import config
@@ -24,6 +23,7 @@ fn main() {
     str_to_fs("index.html", &html);
 
 }
+
 
 fn compile_html(conf: structs::config::Conf) -> String {
     // all divs are compiled and added to master
@@ -77,8 +77,7 @@ fn compile_html(conf: structs::config::Conf) -> String {
             element.from_str(x.from_str.as_ref().unwrap());
         }
         yml_div.element(element);
-    };
-    println!("{:?}", yml_div);
+    }
 
     // compiling divs
     format!(
