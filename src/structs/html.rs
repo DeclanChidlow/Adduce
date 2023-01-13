@@ -62,7 +62,7 @@ fn div_compiler(input: &Div) -> String {
         if x.id.is_some() {
             id = format!(" id=\"{}\"", x.id.as_ref().unwrap());
         };
-        println!("{:?}", x.from_str);
+
         // exceptions
         let text = match &x.from_str {
             Some(a) => fs_to_str(&a),
