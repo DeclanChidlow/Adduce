@@ -1,42 +1,21 @@
-# template info
-title = "ToastXC"
-locale = ""
-author = "Toast fox"
-
-
 # main is the main div for the element
 # support for multiple divs will be added in time
 [main]
 
 # blocks contain words and a style
 [[main.block]]
-text = "Welcome to my site!\nThis website was generated using a tool i made"
-style = "h3"
+text = "Adduce"
+style = "h1"
 
-# custom html
-# the html style will tell the compiler to ignore styling
+
 [[main.block]]
-text = "<h2 style=\"color: blue\">css is not fun</h2>"
-style = "html"
+text = "#### Valence & ToastXC"
+style = "md"
 
-# breaklines do not require text
+[[main.block]]
+from_str = "text.md"
+style = "md"
+
+
 [[main.block]]
 style = "br"
-
-# IDs can be added with teh ID tag
-[[main.block]]
-style = "h2"
-text = "it has an ID!"
-id = "2"
-
-# importing text files currently works for plaintext
-[[main.block]]
-style = "html"
-from_str = "text.txt"
-# when from_str is used text is ignored
-text ="This text will not be visable!"
-
-# text imported as md acts differently
-[[main.block]]
-style = "md"
-from_str = "text.txt"
