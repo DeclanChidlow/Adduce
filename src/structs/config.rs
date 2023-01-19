@@ -1,7 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use super::html::Style;
-
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Conf {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -15,6 +13,7 @@ pub struct Conf {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub main: Option<Main>,
 }
+
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 
 pub struct Social {
@@ -32,9 +31,14 @@ pub struct Object {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub style: Option<Style>,
+    pub style: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub from_str: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
+}
+
+#[derive(Default, Debug, Clone)]
+pub struct Div {
+    pub element: Vec<Object>,
 }

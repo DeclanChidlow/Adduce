@@ -27,10 +27,7 @@ pub fn copy_dir(input: &str, generated: &str) {
     };
 
     // for every file in the input directory
-    for x in std::fs::read_dir(input)
-        .expect("failed to read input")
-
-    {
+    for x in std::fs::read_dir(input).expect("failed to read input") {
         // create a new string, and let the content = the current file's content
         let mut file_str = String::new();
 

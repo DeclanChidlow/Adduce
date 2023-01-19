@@ -4,7 +4,8 @@ locale = ""
 author = "Toast fox"
 
 
-# blocks
+# main is the main div for the element
+# support for multiple divs will be added in time
 [main]
 
 # blocks contain words and a style
@@ -12,14 +13,10 @@ author = "Toast fox"
 text = "Welcome to my site!\nThis website was generated using a tool i made"
 style = "h3"
 
-[[main.block]]
-text = "it looks bland now, but i will add css soon!!!"
-style = "h3"
-
 # custom html
 # the html style will tell the compiler to ignore styling
 [[main.block]]
-text = "<h2 style=\"color: blue\">while styling is possible</h2>"
+text = "<h2 style=\"color: blue\">css is not fun</h2>"
 style = "html"
 
 # breaklines do not require text
@@ -33,9 +30,13 @@ text = "it has an ID!"
 id = "2"
 
 # importing text files currently works for plaintext
-# and html, but markdown will be added!!
 [[main.block]]
-style = "h4"
+style = "html"
 from_str = "text.txt"
-id = "sussy"
+# when from_str is used text is ignored
 text ="This text will not be visable!"
+
+# text imported as md acts differently
+[[main.block]]
+style = "md"
+from_str = "text.txt"

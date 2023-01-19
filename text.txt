@@ -1,4 +1,2 @@
-Hello i am a text file!
-this feature is useful for importing html files
-AND plaintext.
-We also plan to integerate markdown!
+# hello i am a text file
+## i was written in md
