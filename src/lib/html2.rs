@@ -65,7 +65,7 @@ fn markdown(text: &str) -> String {
         for _ in 0..popper {
             text_min.remove(0);
         }
-        let temp = format!("\n<{style}>\n{text_min}\n</{style}>");
+        let temp = format!("\n<{style}>\n    {text_min}\n</{style}>");
 
         fin += &temp
     }
