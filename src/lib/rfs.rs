@@ -1,11 +1,12 @@
 use std::{io::Read, str::from_utf8};
 
-use crate::structs::config::Conf;
+use crate::structs::toml_conf::Conf;
+
 
 // given a directory return the content
 #[allow(dead_code)]
 pub fn fs_to_str(directory: &str) -> String {
-    let file = std::fs::read(directory).expect("file could not be found!");
+    let file = std::fs::read(directory).expect(&format!("file could not be found!\n{}", directory));
 
     let file_str = from_utf8(&file).expect("failed to deserilise! is this possible?");
 
@@ -15,16 +16,22 @@ pub fn fs_to_str(directory: &str) -> String {
 pub fn str_to_fs(directory: &str, content: &str) {
     std::fs::write(directory, content).expect("failed to write to file");
 }
+
+#[allow(dead_code)]
+pub fn dir_remake(directory: &str) {
+    match std::fs::read_dir(directory) {
+        Err(_) => std::fs::create_dir(directory).expect("failed to create directory"),
+        Ok(_) => {
+            std::fs::remove_dir_all(directory).expect("failed to delete directory");
+            std::fs::create_dir(directory).expect("failed to create directory")
+        }
+    };
+}
+
 #[allow(dead_code)]
 pub fn copy_dir(input: &str, generated: &str) {
     // if directory exists, remove and remake it, otherwise just make the dir
-    match std::fs::read_dir(generated) {
-        Err(_) => std::fs::create_dir(generated).expect("failed to create directory"),
-        Ok(_) => {
-            std::fs::remove_dir_all(generated).expect("failed to delete directory");
-            std::fs::create_dir(generated).expect("failed to create directory")
-        }
-    };
+    dir_remake(generated);
 
     // for every file in the input directory
     for x in std::fs::read_dir(input).expect("failed to read input") {

@@ -1,4 +1,4 @@
-use crate::structs::config::{Conf, Object};
+use crate::structs::toml_conf::{Conf, Object};
 
 use super::rfs::fs_to_str;
 
@@ -8,6 +8,8 @@ impl Conf {
         for x in self.main.unwrap().block.iter() {
             divs += &compile_html(x);
         }
+
+
         format!("<!DOCTYPE html>\n<head>\n</head>\n<body>\n{divs}\n</body>")
     }
 }
@@ -58,8 +60,6 @@ fn markdown(text: &str) -> String {
 
             _ => ("p", 0),
         };
-
-        println!("{popper}");
         // text minus the md formating
         let mut text_min: String = x.to_owned();
         for _ in 0..popper {

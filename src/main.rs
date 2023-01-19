@@ -3,17 +3,17 @@ mod lib {
     pub mod rfs;
 }
 mod structs {
-    pub mod config;
+    pub mod html_conf;
+    pub mod toml_conf;
 }
-use lib::rfs::{import_conf, str_to_fs};
 
 pub use serde::{Deserialize, Serialize};
+use structs::html_conf::Generate;
 
 fn main() {
-    // import config
-    let conf = import_conf("config/example.toml");
+    let genconf = Generate::new()
+        .conf_str("config/conf.toml")
+        .output_dir("output");
 
-    let html = conf.to_html();
-
-    str_to_fs("index.html", &html);
+    Generate::from_conf(genconf)
 }
