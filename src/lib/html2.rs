@@ -9,8 +9,13 @@ impl Conf {
             divs += &compile_html(x);
         }
 
+        println!("{}", self.style.is_some());
+        let styling = match self.style {
+            None => String::new(),
+            Some(a) => fs_to_str(&a),
+        };
 
-        format!("<!DOCTYPE html>\n<head>\n</head>\n<body>\n{divs}\n</body>")
+        format!("<!DOCTYPE html>\n<head>\n<style>\n{styling}\n</style>\n</head>\n<body>\n{divs}\n</body>")
     }
 }
 
@@ -23,7 +28,7 @@ fn compile_html(conf: &Object) -> String {
 
     // define text
     let text = match conf.from_str {
-        None => conf.text.unwrap_or(String::from("PLACEHOLDER")),
+        None => conf.text.unwrap_or_else(|| String::from("PLACEHOLDER")),
         Some(a) => fs_to_str(&a),
     };
 
@@ -47,10 +52,10 @@ fn compile_html(conf: &Object) -> String {
 
 fn markdown(text: &str) -> String {
     let mut fin = String::new();
-    for x in text.split("\n").into_iter() {
-        let mut c = x.clone().chars();
+    for x in text.split('\n') {
+        let mut c = x.chars();
 
-        let (style, popper) = match (c.nth(0), c.nth(0), c.nth(0), c.nth(0), c.nth(0)) {
+        let (style, popper) = match (c.next(), c.next(), c.next(), c.next(), c.next()) {
             // h5 -> h1
             (Some('#'), Some('#'), Some('#'), Some('#'), Some('#')) => ("h5", 5),
             (Some('#'), Some('#'), Some('#'), Some('#'), _) => ("h4", 4),
@@ -74,7 +79,7 @@ fn markdown(text: &str) -> String {
 
 fn pretty_text(text: &str) -> String {
     let mut fin = String::new();
-    for x in text.split("\n").into_iter() {
+    for x in text.split('\n') {
         fin += &format!("\n    {x}");
     }
     fin
