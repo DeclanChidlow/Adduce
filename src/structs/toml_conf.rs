@@ -11,7 +11,10 @@ pub struct Conf {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub social: Option<Social>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub style:  Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub main: Option<Main>,
+
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
