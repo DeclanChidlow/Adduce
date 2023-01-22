@@ -2,11 +2,10 @@ use std::{io::Read, str::from_utf8};
 
 use crate::structs::toml_conf::Conf;
 
-
 // given a directory return the content
 #[allow(dead_code)]
 pub fn fs_to_str(directory: &str) -> String {
-    let file = std::fs::read(directory).expect(&format!("file could not be found!\n{}", directory));
+    let file = std::fs::read(directory).unwrap_or_else(|_| panic!("file could not be found!\n{}", directory));
 
     let file_str = from_utf8(&file).expect("failed to deserilise! is this possible?");
 
@@ -59,7 +58,13 @@ pub fn import_conf(directory: &str) -> Conf {
         .read_to_string(&mut content)
         .unwrap();
 
-    let config: Conf = toml::from_str(&content).unwrap();
+    toml::from_str(&content).unwrap()
+}
 
-    config
+#[allow(dead_code)]
+pub fn copy_file(filename: &str, input_dir: &str, output_dir: &str) {
+    str_to_fs(
+        &format!("{output_dir}/{filename}"),
+        &fs_to_str(&format!("{input_dir}/{filename}")),
+    );
 }
