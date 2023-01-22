@@ -1,11 +1,11 @@
 use std::{io::Read, str::from_utf8};
 
-use crate::structs::config::Conf;
+use crate::structs::toml_conf::Conf;
 
 // given a directory return the content
 #[allow(dead_code)]
 pub fn fs_to_str(directory: &str) -> String {
-    let file = std::fs::read(directory).expect("file could not be found!");
+    let file = std::fs::read(directory).unwrap_or_else(|_| panic!("file could not be found!\n{}", directory));
 
     let file_str = from_utf8(&file).expect("failed to deserilise! is this possible?");
 
@@ -15,22 +15,25 @@ pub fn fs_to_str(directory: &str) -> String {
 pub fn str_to_fs(directory: &str, content: &str) {
     std::fs::write(directory, content).expect("failed to write to file");
 }
+
+#[allow(dead_code)]
+pub fn dir_remake(directory: &str) {
+    match std::fs::read_dir(directory) {
+        Err(_) => std::fs::create_dir(directory).expect("failed to create directory"),
+        Ok(_) => {
+            std::fs::remove_dir_all(directory).expect("failed to delete directory");
+            std::fs::create_dir(directory).expect("failed to create directory")
+        }
+    };
+}
+
 #[allow(dead_code)]
 pub fn copy_dir(input: &str, generated: &str) {
     // if directory exists, remove and remake it, otherwise just make the dir
-    match std::fs::read_dir(generated) {
-        Err(_) => std::fs::create_dir(generated).expect("failed to create directory"),
-        Ok(_) => {
-            std::fs::remove_dir_all(generated).expect("failed to delete directory");
-            std::fs::create_dir(generated).expect("failed to create directory")
-        }
-    };
+    dir_remake(generated);
 
     // for every file in the input directory
-    for x in std::fs::read_dir(input)
-        .expect("failed to read input")
-
-    {
+    for x in std::fs::read_dir(input).expect("failed to read input") {
         // create a new string, and let the content = the current file's content
         let mut file_str = String::new();
 
@@ -55,7 +58,13 @@ pub fn import_conf(directory: &str) -> Conf {
         .read_to_string(&mut content)
         .unwrap();
 
-    let config: Conf = toml::from_str(&content).unwrap();
+    toml::from_str(&content).unwrap()
+}
 
-    config
+#[allow(dead_code)]
+pub fn copy_file(filename: &str, input_dir: &str, output_dir: &str) {
+    str_to_fs(
+        &format!("{output_dir}/{filename}"),
+        &fs_to_str(&format!("{input_dir}/{filename}")),
+    );
 }

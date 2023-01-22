@@ -4,8 +4,12 @@
             "name": "run",
             "type": "cargo",
             "cargoArgs": ["run"],
+        },
+        {
+            "type": "cargo",
+            "name": "clippy",
+            "cargoArgs": ["clippy"],
         }
-
 
 
     ]
