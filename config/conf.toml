@@ -1,8 +1,7 @@
 
 style = "config/style.css"
 
-# main is the main div for the element
-# support for multiple divs will be added in time
+# main holds the body of the document in main there are blocks which have properties
 [main]
 
 # blocks contain words and a style
@@ -11,15 +10,22 @@ text = "Adduce"
 style = "h1"
 
 
+# markdown is supported!
 [[main.block]]
 text = "#### Valence & ToastXC"
 style = "md"
 
+
+# additionally, the filesystem can be used to generate text
 [[main.block]]
 from_str = "config/text.md"
 style = "md"
 
 
+# breaklines do not require any text as they are empty
 [[main.block]]
 style = "br"
+
+
+
 
