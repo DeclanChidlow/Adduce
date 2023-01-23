@@ -1,11 +1,29 @@
 body {
     background-color: #222;
+    color: white
 }
 
-p {color: white}
+/* Markdown Styling */
+h1 {
+    text-decoration-line: underline;
+}
 
-h1 {color: white}
-h2 {color: white}
-h3 {color: white}
-h4 {color: white}
-h5 {color: white}
+bold {
+    font-weight: bold;
+}
+
+italic {
+    font-style: italic;
+}
+
+quote, nestquote {
+    background: rgba(255, 255, 255, 0.3);
+    border-left: 3px solid rgba(255, 255, 255);
+    font-style: italic;
+    padding: 3px;
+    display: block;
+}
+
+nestquote {
+    margin-left: 15px;
+}
