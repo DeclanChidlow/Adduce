@@ -1,45 +1,6 @@
 body {
-    background-color: #27292A;
-    color: white;
-    text-align: center;
-}
-
-h1 {
-  color: #f74e00;
-}
-
-h2, h3, h4, h5, h6 {
-  color: #C5C3C6;
-}
-
-img {
-  float: left;
-}
-
-.top {
-  background: red;
-}
-
-a {
-  color: white;
-}
-
-a#button {
-  font-size: 20px;
-  padding: 5px;
-  background: #f74e00;
-  border-radius: 5px;
-  text-decoration: none;
-}
-
-footer {
-  position: fixed;
-  height: 50px;
-  background: #4C5C68;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-  margin-bottom: 0px;
+    background-color: #222;
+    color: white
 }
 
 /* Markdown Styling */
