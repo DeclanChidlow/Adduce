@@ -1,11 +1,68 @@
 body {
-    background-color: #222;
+    background-color: #27292A;
+    color: white;
+    text-align: center;
 }
 
-p {color: white}
+h1 {
+  color: #f74e00;
+}
 
-h1 {color: white}
-h2 {color: white}
-h3 {color: white}
-h4 {color: white}
-h5 {color: white}
+h2, h3, h4, h5, h6 {
+  color: #C5C3C6;
+}
+
+img {
+  float: left;
+}
+
+.top {
+  background: red;
+}
+
+a {
+  color: white;
+}
+
+a#button {
+  font-size: 20px;
+  padding: 5px;
+  background: #f74e00;
+  border-radius: 5px;
+  text-decoration: none;
+}
+
+footer {
+  position: fixed;
+  height: 50px;
+  background: #4C5C68;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  margin-bottom: 0px;
+}
+
+/* Markdown Styling */
+h1 {
+    text-decoration-line: underline;
+}
+
+bold {
+    font-weight: bold;
+}
+
+italic {
+    font-style: italic;
+}
+
+quote, nestquote {
+    background: rgba(255, 255, 255, 0.3);
+    border-left: 3px solid rgba(255, 255, 255);
+    font-style: italic;
+    padding: 3px;
+    display: block;
+}
+
+nestquote {
+    margin-left: 15px;
+}
