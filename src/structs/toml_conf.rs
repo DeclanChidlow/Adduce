@@ -39,6 +39,8 @@ pub struct Object {
     pub from_str: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub link: Option<String>,
 }
 
 #[derive(Default, Debug, Clone)]
