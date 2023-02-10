@@ -5,7 +5,8 @@ use crate::structs::toml_conf::Conf;
 // given a directory return the content
 #[allow(dead_code)]
 pub fn fs_to_str(directory: &str) -> String {
-    let file = std::fs::read(directory).unwrap_or_else(|_| panic!("file could not be found!\n{}", directory));
+    let file = std::fs::read(directory)
+        .unwrap_or_else(|_| panic!("file could not be found!\n{}", directory));
 
     let file_str = from_utf8(&file).expect("failed to deserilise! is this possible?");
 
