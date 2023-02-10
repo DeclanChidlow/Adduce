@@ -9,6 +9,7 @@ impl Conf {
             divs += &compile_html(x);
         }
 
+
         let styling = match self.style {
             None => String::new(),
             Some(a) => fs_to_str(&a),
@@ -63,7 +64,7 @@ fn markdown(text: &str) -> String {
     for x in text.split('\n') {
         let mut x = x.to_string();
 
-        while x.chars().nth(0) == Some(' ') {
+        while x.starts_with(' ') {
             x.remove(0);
         }
 
@@ -118,8 +119,8 @@ fn markdown(text: &str) -> String {
             "br" => String::from("\n<br>"),
             "no" => String::new(),
             "html_start" | "html_end" => format!("\n{text_min}"),
-            "code_block" => format!("\n<div class=\"codeblock\">"),
-            "code_block_end" => format!("\n</div>"),
+            "code_block" => String::from("\n<div class=\"codeblock\">"),
+            "code_block_end" => String::from("\n</div>"),
             _ => format!("\n<{style}>\n    {text_min}\n</{style}>"),
         }
         .as_ref();
