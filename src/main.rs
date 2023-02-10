@@ -7,7 +7,9 @@ mod structs {
     pub mod toml_conf;
 }
 
-const HELP: &str = "--generate\n";
+const HELP: &str = "--config configuration directory
+--name html filename
+--ouput html destination";
 
 pub use serde::{Deserialize, Serialize};
 use structs::html_conf::Generate;
