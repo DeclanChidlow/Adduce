@@ -15,7 +15,7 @@ impl Conf {
             Some(a) => fs_to_str(&a),
         };
 
-        format!("<!DOCTYPE html>\n<head>\n<style>\n{styling}\n</style>\n</head>\n<body>\n{divs}\n</body>")
+        format!("<!DOCTYPE html>\n<head>\n<style>\n{styling}\n</style>\n</head>\n<body>\n<div class=\"page\">\n{divs}\n</div>\n</body>")
     }
 }
 
