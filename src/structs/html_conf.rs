@@ -1,4 +1,4 @@
-use crate::lib::rfs::{dir_remake, import_conf, str_to_fs};
+use crate::lib::rfs::{import_conf, str_to_fs};
 
 use super::toml_conf::Conf;
 
@@ -7,7 +7,8 @@ pub struct Generate {
     pub config: Conf,
     pub input: Option<String>,
     pub ouput: Option<String>,
-    pub method: GenMethod,
+    pub filename: Option<String>,
+    pub style: Option<String>,
 }
 
 #[derive(Default, Debug, Clone)]
@@ -35,27 +36,34 @@ impl Generate {
         self
     }
 
-    #[allow(dead_code)]
-    pub fn method(mut self, method: GenMethod) -> Self {
-        self.method = method;
+    pub fn filename(mut self, name: &str) -> Self {
+        self.filename = Some(String::from(name));
         self
     }
 
     pub fn from_conf(genconf: Generate) {
         generate_html(genconf);
     }
+
+    pub fn void(self) -> Self {
+        self
+    }
 }
 
 pub fn generate_html(conf: Generate) {
     // defining output directory
     let output = conf.ouput.clone().unwrap_or_else(|| String::from("output"));
-    //let input = conf.input.clone().unwrap_or_else(|| String::from("config"));
-
-    // recreate output directory
-    dir_remake(&output);
+   
 
     // create and move html file
-    let html_dir = format!("{output}/index.html");
+    let html_dir = format!(
+        "{output}/{}",
+        conf.filename.unwrap_or_else(|| String::from("index.html"))
+    );
+
+    if std::fs::File::open(&html_dir).is_ok() {
+        std::fs::remove_file(&html_dir).unwrap();
+    }
 
     std::fs::File::create(&html_dir).unwrap();
     str_to_fs(&html_dir, &conf.config.to_html());

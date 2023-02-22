@@ -9,13 +9,13 @@ impl Conf {
             divs += &compile_html(x);
         }
 
-        println!("{}", self.style.is_some());
+
         let styling = match self.style {
             None => String::new(),
             Some(a) => fs_to_str(&a),
         };
 
-        format!("<!DOCTYPE html>\n<head>\n<style>\n{styling}\n</style>\n</head>\n<body>\n{divs}\n</body>")
+        format!("<!DOCTYPE html>\n<head>\n<style>\n{styling}\n</style>\n</head>\n<body>\n<div class=\"page\">\n{divs}\n</div>\n</body>")
     }
 }
 
@@ -40,19 +40,34 @@ fn compile_html(conf: &Object) -> String {
         Some(a) => format!(" id=\"{}\"", a),
     };
 
-    // in case there is a special style
-    match &style as &str {
-        "br" => String::from("<br>"),
-        "html" => pt_text,
+    // mutually exclusive conditionals
+    let mut html = match &style as &str {
+        "br" => String::from("\n<br>"),
+        "html" => String::from("\n") + &pt_text,
         "md" => markdown(&text),
         // standard
         _ => format!("\n<{style}{id}>{pt_text}\n</{style}>"),
-    }
+    };
+
+    // optional restructing
+
+    // anchor
+    if let Some(link) = conf.link {
+        html = format!("\n<a href=\"{link}\">\n{html}\n</a>");
+    };
+
+    html
 }
 
 fn markdown(text: &str) -> String {
     let mut fin = String::new();
     for x in text.split('\n') {
+        let mut x = x.to_string();
+
+        while x.starts_with(' ') {
+            x.remove(0);
+        }
+
         let mut c = x.chars();
 
         let (style, popper, at_end) =
@@ -74,11 +89,20 @@ fn markdown(text: &str) -> String {
                 (Some('>'), Some('>'), _, _, _, _) => ("nestquote", 2, false),
                 (Some('>'), _, _, _, _, _) => ("quote", 1, false),
 
-                (Some('<'), _, _, _, _, _) => ("html", 0, false),
+                (Some('<'), Some('/'), _, _, _, _) => ("html_end", 0, false),
+
+                (Some('<'), Some(_), _, _, _, _) => ("html_start", 0, false),
 
                 (Some('-'), _, _, _, _, _) => ("li", 1, false),
 
-                // (Some(_), _, _, _, _, _) => ("p", 0, false),
+                (Some(' '), _, _, _, _, _) => ("no", 0, false),
+                (Some('`'), Some('`'), Some('`'), Some(_), _, _) => ("code_block", 3, false),
+                (Some('`'), Some('`'), Some('`'), None, _, _) => ("code_block_end", 3, false),
+
+                (Some('\n'), _, _, _, _, _) => ("no", 0, false),
+
+                (Some(_), _, _, _, _, _) => ("p", 0, false),
+
                 _ => ("no", 0, false),
             };
         // text minus the md formating
@@ -94,7 +118,9 @@ fn markdown(text: &str) -> String {
         fin += match style {
             "br" => String::from("\n<br>"),
             "no" => String::new(),
-            "html" => text_min,
+            "html_start" | "html_end" => format!("\n{text_min}"),
+            "code_block" => String::from("\n<div class=\"codeblock\">"),
+            "code_block_end" => String::from("\n</div>"),
             _ => format!("\n<{style}>\n    {text_min}\n</{style}>"),
         }
         .as_ref();
