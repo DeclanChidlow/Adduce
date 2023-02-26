@@ -2,6 +2,10 @@
 <br>
 You can do all sorts of things with Adduce including importing HTML markdown and plaintext files!.
 
+```
+It even has code block support!
+```
+
 #### ~ You are currently reading a text file which has been imported into this page. ~
 
 Check out this project on our Github github.com/DeclanChidlow/Adduce Check out the creator's websites at vale.rocks and toastxc.xyz
