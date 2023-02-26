@@ -9,7 +9,6 @@ impl Conf {
             divs += &compile_html(x);
         }
 
-
         let styling = match self.style {
             None => String::new(),
             Some(a) => fs_to_str(&a),
@@ -61,6 +60,7 @@ fn compile_html(conf: &Object) -> String {
 
 fn markdown(text: &str) -> String {
     let mut fin = String::new();
+    let mut inside_codeblock = false;
     for x in text.split('\n') {
         let mut x = x.to_string();
 
@@ -115,13 +115,32 @@ fn markdown(text: &str) -> String {
             };
         }
 
+        // add support for proper use of pre/code elements
+        // for actual support for monospace/codeblocks.
+        fin += match (style, inside_codeblock)
+        {
+            ("br", true) => String::from("\n"),
+            ("br", false) => String::from("\n<br>"),
+            (_, false) => format!("\n<{style}>\n    {text_min}\n</{style}>"),
+            (_, true) => format!("\n{text_min}")
+        }.as_ref();
+
+        // Set inside_codeblock if the target style
+        // is the start or end of a codeblock.
+        // This is after the inside_codeblock so there
+        // isn't any extra line endings on codeblocks.
+        inside_codeblock = match style {
+            "code_block" => true,
+            "code_block_end" => false,
+            _ => inside_codeblock,
+        };
+
         fin += match style {
-            "br" => String::from("\n<br>"),
             "no" => String::new(),
             "html_start" | "html_end" => format!("\n{text_min}"),
-            "code_block" => String::from("\n<div class=\"codeblock\">"),
-            "code_block_end" => String::from("\n</div>"),
-            _ => format!("\n<{style}>\n    {text_min}\n</{style}>"),
+            "code_block" => String::from("\n<pre class=\"codeblock\"><code>"),
+            "code_block_end" => String::from("\n</code></pre>"),
+            _ => String::new(),
         }
         .as_ref();
     }
