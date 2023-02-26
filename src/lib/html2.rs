@@ -70,7 +70,7 @@ fn markdown(text: &str) -> String {
 
         let mut c = x.chars();
 
-        let (style, popper, at_end) =
+        let (mut style, popper, at_end) =
             match (c.next(), c.next(), c.next(), c.next(), c.next(), c.next()) {
                 // h6 -> h1
                 (Some('#'), Some('#'), Some('#'), Some('#'), Some('#'), Some('#')) => {
@@ -113,6 +113,10 @@ fn markdown(text: &str) -> String {
             if at_end {
                 text_min.pop();
             };
+        }
+
+        if inside_codeblock && style == "code_block" {
+            style = "code_block_end";
         }
 
         // add support for proper use of pre/code elements
