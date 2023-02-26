@@ -1,6 +1,17 @@
 body {
     background-color: #222;
-    color: white
+    color: white;
+    font-family: 'Arial', sans;
+}
+
+/* Custom codeblock styling */
+.codeblock {
+    background-color: #333;
+    padding: 0 1rem;
+    width: fit-content;
+    border-radius: 0.5rem;
+    font-family: monospace;
+    line-height: 1;
 }
 
 /* Markdown Styling */
