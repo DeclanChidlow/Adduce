@@ -55,14 +55,18 @@ pub fn copy_dir(input: &str, generated: &str) {
 pub fn import_conf(directory: &str) -> Conf {
     let mut content = String::new();
 
-    if let Err(a) = std::fs::File::open(directory)
-        .unwrap()
-        .read_to_string(&mut content)
-    {
-        println!("could not open {}\n\n{a}", directory)
-    };
+    // if exists
+    match std::fs::File::open(directory) {
+        Ok(mut file) => {
+            // read to str
+            file.read_to_string(&mut content).unwrap();
 
-    toml::from_str(&content).unwrap()
+            toml::from_str(&content).unwrap()
+        }
+        Err(e) => {
+            panic!("failed to import file: {e}\ndirectory: {directory}")
+        }
+    }
 }
 
 #[allow(dead_code)]
