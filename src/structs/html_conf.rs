@@ -53,7 +53,6 @@ impl Generate {
 pub fn generate_html(conf: Generate) {
     // defining output directory
     let output = conf.ouput.clone().unwrap_or_else(|| String::from("output"));
-   
 
     // create and move html file
     let html_dir = format!(
@@ -64,6 +63,10 @@ pub fn generate_html(conf: Generate) {
     if std::fs::File::open(&html_dir).is_ok() {
         std::fs::remove_file(&html_dir).unwrap();
     }
+
+    if std::fs::read_dir(output.clone()).is_err() {
+        std::fs::create_dir(output).unwrap()
+    };
 
     std::fs::File::create(&html_dir).unwrap();
     str_to_fs(&html_dir, &conf.config.to_html());
