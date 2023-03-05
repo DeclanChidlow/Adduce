@@ -10,15 +10,22 @@ impl Conf {
         }
 
         // CSS stylesheets - not to be confused with 'style'
-        let mut styling = String::new();
+        let mut style_conf = String::new();
 
         if let Some(styles) = self.clone().style {
             for x in styles {
-                styling += &fs_to_str(&x);
+                style_conf += &fs_to_str(&x);
             }
         }
 
-        format!("<!DOCTYPE html>\n<head>\n<style>\n{styling}\n</style>\n</head>\n<body>\n<div class=\"page\">\n{divs}\n</div>\n</body>")
+        let mut head_conf = String::new();
+        if let Some(head) = self.clone().head {
+            for x in head {
+                head_conf += &fs_to_str(&x);
+            }
+        }
+
+        format!("<!DOCTYPE html>\n<head>\n<style>\n{style_conf}\n</style>\n{head_conf}\n</head>\n<body>\n<div class=\"page\">\n{divs}\n</div>\n</body>")
     }
 }
 

@@ -14,6 +14,8 @@ pub struct Conf {
     pub style:  Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub main: Option<Main>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub head: Option<Vec<String>>,
 
 }
 
