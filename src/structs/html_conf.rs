@@ -8,7 +8,6 @@ pub struct Generate {
     pub input: Option<String>,
     pub ouput: Option<String>,
     pub filename: Option<String>,
-    pub style: Option<String>,
 }
 
 #[derive(Default, Debug, Clone)]
@@ -23,7 +22,12 @@ impl Generate {
     }
 
     pub fn conf_str(mut self, config: &str) -> Self {
-        self.config = import_conf(config);
+    
+
+        match import_conf(config) {
+            Ok(a) => {self.config = a},
+            Err(e) => {println!("{e}")},
+        }
         self
     }
     #[allow(dead_code)]

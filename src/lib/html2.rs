@@ -3,16 +3,20 @@ use crate::structs::toml_conf::{Conf, Object};
 use super::rfs::fs_to_str;
 
 impl Conf {
-    pub fn to_html(self) -> String {
+    pub fn to_html(&self) -> String {
         let mut divs = String::new();
-        for x in self.main.unwrap().block.iter() {
+        for x in self.main.clone().unwrap_or_default().block.iter() {
             divs += &compile_html(x);
         }
 
-        let styling = match self.style {
-            None => String::new(),
-            Some(a) => fs_to_str(&a),
-        };
+        // CSS stylesheets - not to be confused with 'style'
+        let mut styling = String::new();
+
+        if let Some(styles) = self.clone().style {
+            for x in styles {
+                styling += &fs_to_str(&x);
+            }
+        }
 
         format!("<!DOCTYPE html>\n<head>\n<style>\n{styling}\n</style>\n</head>\n<body>\n<div class=\"page\">\n{divs}\n</div>\n</body>")
     }
@@ -36,7 +40,7 @@ fn compile_html(conf: &Object) -> String {
     // defines id
     let id = match conf.id {
         None => String::new(),
-        Some(a) => format!(" id=\"{}\"", a),
+        Some(a) => format!(" id=\"{a}\""),
     };
 
     // mutually exclusive conditionals
@@ -70,7 +74,7 @@ fn markdown(text: &str) -> String {
 
         let mut c = x.chars();
 
-        let (mut style, popper, at_end) =
+        let (style, popper, at_end) =
             match (c.next(), c.next(), c.next(), c.next(), c.next(), c.next()) {
                 // h6 -> h1
                 (Some('#'), Some('#'), Some('#'), Some('#'), Some('#'), Some('#')) => {
@@ -105,6 +109,7 @@ fn markdown(text: &str) -> String {
 
                 _ => ("no", 0, false),
             };
+
         // text minus the md formating
         let mut text_min: String = x.to_owned();
 
@@ -114,20 +119,6 @@ fn markdown(text: &str) -> String {
                 text_min.pop();
             };
         }
-
-        if inside_codeblock && style == "code_block" {
-            style = "code_block_end";
-        }
-
-        // add support for proper use of pre/code elements
-        // for actual support for monospace/codeblocks.
-        fin += match (style, inside_codeblock)
-        {
-            ("br", true) => String::from("\n"),
-            ("br", false) => String::from("\n<br>"),
-            (_, false) => format!("\n<{style}>\n    {text_min}\n</{style}>"),
-            (_, true) => format!("\n{text_min}")
-        }.as_ref();
 
         // Set inside_codeblock if the target style
         // is the start or end of a codeblock.
@@ -139,15 +130,29 @@ fn markdown(text: &str) -> String {
             _ => inside_codeblock,
         };
 
-        fin += match style {
-            "no" => String::new(),
-            "html_start" | "html_end" => format!("\n{text_min}"),
-            "code_block" => String::from("\n<pre class=\"codeblock\"><code>"),
-            "code_block_end" => String::from("\n</code></pre>"),
-            _ => String::new(),
+        // add support for proper use of pre/code elements
+        // for actual support for monospace/codeblocks.
+        fin += match (style, inside_codeblock) {
+            // breakline in and out of codeblock
+            ("br", true) => String::from("\n"),
+            ("br", false) => String::from("\n<br>"),
+
+            //  nulltext
+            ("no", _) => String::new(),
+
+            ("html_start", _) | ("html_end", _) => format!("\n{text_min}"),
+
+            // codeblock start and end
+            ("code_block", _) => String::from("\n<pre class=\"codeblock\"><code>"),
+            ("code_block_end", _) => String::from("\n</code></pre>"),
+
+            // html in and out of codeblock
+            (_, false) => format!("\n<{style}>\n    {text_min}\n</{style}>"),
+            (_, true) => format!("\n{text_min}"),
         }
         .as_ref();
     }
+
     fin
 }
 
