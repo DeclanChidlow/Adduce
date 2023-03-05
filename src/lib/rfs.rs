@@ -1,3 +1,4 @@
+use core::fmt;
 use std::{io::Read, str::from_utf8};
 
 use crate::structs::toml_conf::Conf;
@@ -6,7 +7,7 @@ use crate::structs::toml_conf::Conf;
 #[allow(dead_code)]
 pub fn fs_to_str(directory: &str) -> String {
     let file = std::fs::read(directory)
-        .unwrap_or_else(|_| panic!("file could not be found!\n{}", directory));
+        .unwrap_or_else(|_| panic!("file could not be found!\n{directory}"));
 
     let file_str = from_utf8(&file).expect("failed to deserilise! is this possible?");
 
@@ -52,20 +53,67 @@ pub fn copy_dir(input: &str, generated: &str) {
     }
 }
 
-pub fn import_conf(directory: &str) -> Conf {
+// custom error type for importing configs
+#[derive(Debug, Clone)]
+pub struct ConfError(CError);
+
+// each error contains the error type, custom error from that type
+// as well as the name of the page that failed to convert
+#[derive(Debug, Clone)]
+pub enum CError {
+    // the file could not be found read or other fs issue
+    File(String, String),
+    // the toml is invalid
+    Toml(String, String),
+}
+
+impl fmt::Display for ConfError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let str = match self.0.clone() {
+            CError::File(error, page) => {
+                format!("Invalid file! failed to convert page {page}\n{error}")
+            }
+            CError::Toml(error, page) => {
+                format!("Invalid TOML! failed to convert page {page}\n{error}")
+            }
+        };
+
+        write!(f, "{str}")
+    }
+}
+
+type Result<Conf> = std::result::Result<Conf, ConfError>;
+
+pub fn import_conf(directory: &str) -> Result<Conf> {
+    // buffer io
     let mut content = String::new();
 
-    // if exists
-    match std::fs::File::open(directory) {
-        Ok(mut file) => {
-            // read to str
-            file.read_to_string(&mut content).unwrap();
-
-            toml::from_str(&content).unwrap()
-        }
+    // import file
+    let mut file = match std::fs::File::open(directory) {
+        Ok(a) => a,
         Err(e) => {
-            panic!("failed to import file: {e}\ndirectory: {directory}")
+            return Err(ConfError(CError::File(
+                e.to_string(),
+                String::from(directory),
+            )))
         }
+    };
+
+    // import write to string
+    if let Err(e) = file.read_to_string(&mut content) {
+        return Err(ConfError(CError::File(
+            e.to_string(),
+            directory.to_string(),
+        )));
+    }
+
+    // check for toml errors
+    match toml::from_str::<Conf>(&content) {
+        Ok(a) => Ok(a),
+        Err(e) => Err(ConfError(CError::Toml(
+            e.to_string(),
+            directory.to_string(),
+        ))),
     }
 }
 
