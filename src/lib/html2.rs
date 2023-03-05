@@ -3,16 +3,20 @@ use crate::structs::toml_conf::{Conf, Object};
 use super::rfs::fs_to_str;
 
 impl Conf {
-    pub fn to_html(self) -> String {
+    pub fn to_html(&self) -> String {
         let mut divs = String::new();
-        for x in self.main.unwrap().block.iter() {
+        for x in self.main.clone().unwrap_or_default().block.iter() {
             divs += &compile_html(x);
         }
 
-        let styling = match self.style {
-            None => String::new(),
-            Some(a) => fs_to_str(&a),
-        };
+        // CSS stylesheets - not to be confused with 'style'
+        let mut styling = String::new();
+
+        if let Some(styles) = self.clone().style {
+            for x in styles {
+                styling += &fs_to_str(&x);
+            }
+        }
 
         format!("<!DOCTYPE html>\n<head>\n<style>\n{styling}\n</style>\n</head>\n<body>\n<div class=\"page\">\n{divs}\n</div>\n</body>")
     }
@@ -36,7 +40,7 @@ fn compile_html(conf: &Object) -> String {
     // defines id
     let id = match conf.id {
         None => String::new(),
-        Some(a) => format!(" id=\"{}\"", a),
+        Some(a) => format!(" id=\"{a}\""),
     };
 
     // mutually exclusive conditionals
@@ -121,13 +125,13 @@ fn markdown(text: &str) -> String {
 
         // add support for proper use of pre/code elements
         // for actual support for monospace/codeblocks.
-        fin += match (style, inside_codeblock)
-        {
+        fin += match (style, inside_codeblock) {
             ("br", true) => String::from("\n"),
             ("br", false) => String::from("\n<br>"),
             (_, false) => format!("\n<{style}>\n    {text_min}\n</{style}>"),
-            (_, true) => format!("\n{text_min}")
-        }.as_ref();
+            (_, true) => format!("\n{text_min}"),
+        }
+        .as_ref();
 
         // Set inside_codeblock if the target style
         // is the start or end of a codeblock.
