@@ -109,9 +109,11 @@ fn cli_pub(args: Vec<&str>, len: usize) {
         toml.main.as_mut().unwrap().block.push(text);
     };
 
-    let html = toml.to_html();
+    let article = match args[4] {
+        _ => toml.to_html(),
+    };
 
-    std::fs::write(format!("feed/export/{}.html", args[4]), html).unwrap();
+    std::fs::write(format!("feed/export/{}.html", args[4]), article).unwrap();
 }
 
 fn conf_make() {
