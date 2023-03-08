@@ -1,6 +1,7 @@
 mod lib {
     pub mod html2;
     pub mod rfs;
+    pub mod rss;
 }
 mod structs {
     pub mod html_conf;
@@ -17,11 +18,19 @@ use structs::html_conf::Generate;
 fn main() {
     let args = args();
 
+    // if the length is 2 then there are no CLI args
     if args.len() < 2 {
         println!("{}", HELP);
         return;
     };
 
+    // adduce feed is a seperate service to the main site builder
+    if args.contains(&String::from("feed")) {
+        lib::rss::process(args);
+        return;
+    }
+
+    // the CLI is strucuted so that - if used properly there are an odd number of args
     if args.len() % 2 == 0 {
         println!("invalid args");
         return;
