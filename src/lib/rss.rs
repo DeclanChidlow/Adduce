@@ -108,7 +108,7 @@ fn cli_pub(args: Vec<&str>, len: usize) {
     } else {
         toml.main.as_mut().unwrap().block.push(text);
     };
-
+    #[allow(clippy::match_single_binding)]
     let article = match args[4] {
         _ => toml.to_html(),
     };
