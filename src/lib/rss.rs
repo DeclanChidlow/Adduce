@@ -103,7 +103,11 @@ fn cli_pub(args: Vec<&str>, len: usize) {
         ..Default::default()
     };
 
-    toml.main = Some(Main { block: vec![text] });
+    if toml.main.is_none() {
+        toml.main = Some(Main { block: vec![text] });
+    } else {
+        toml.main.as_mut().unwrap().block.push(text);
+    };
 
     let html = toml.to_html();
 
@@ -206,6 +210,42 @@ fn conf_wizard() -> Conf {
         false => Some(style),
     };
 
+    println!("pre-page content?");
+    for x in std::fs::read_dir("feed/content").unwrap() {
+        println!("{}", x.unwrap().file_name().to_string_lossy());
+    }
+
+    let mut before_page: Vec<Object> = Vec::new();
+
+    loop {
+        let mut temp = String::new();
+        std::io::stdin().read_line(&mut temp).unwrap();
+        temp = temp.trim().to_string();
+
+        let dir = format!("feed/content/{temp}");
+
+        if dir == *"feed/content/" {
+            break;
+        };
+
+        let file_type: Vec<&str> = dir.split('.').collect();
+
+        let temp_object = Object {
+            style: Some(String::from(file_type[1])),
+            from_str: Some(String::from(&dir)),
+            ..Default::default()
+        };
+
+        match std::fs::File::open(&dir) {
+            Ok(_) => before_page.push(temp_object),
+            Err(e) => println!("{e}"),
+        };
+    }
+
+    if !before_page.is_empty() {
+        conf.main = Some(Main { block: before_page })
+    }
+
     conf
 }
 
@@ -242,7 +282,13 @@ fn cli_new(a: &str) {
 }
 
 fn feed_dir() {
-    for x in &["feed", "feed/documents", "feed/export", "feed/styles"] {
+    for x in &[
+        "feed",
+        "feed/documents",
+        "feed/export",
+        "feed/styles",
+        "feed/content",
+    ] {
         if std::fs::read_dir(x).is_err() {
             println!("could not find directory {x}, creating...");
 
