@@ -41,7 +41,7 @@ adduce feed edit document
 ## Publish document
 Currently the only supported schema is HTML
 ```bash
-adduce feed publish document html
+adduce feed publish document
 firefox --new-tab ./feed/export/document.html
 ```
 
