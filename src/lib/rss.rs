@@ -18,20 +18,23 @@ pub fn process(args: Vec<String>) {
 
     let args: Vec<&str> = newstr.split(' ').collect();
 
-    match (args.clone().as_slice(), args.len()) {
+    match (args.as_slice(), args.len()) {
         // exceptions
         (_, 2) | (_, 3) => println!("{HELP}"),
 
         // CLI incomplete
         ([.., "new"], _) => println!("New requires article name"),
         ([.., "edit"], _) => println!("Edit requires article name"),
-        ([.., "publish"], len) => cli_pub(args, len),
-        //  ([.., "conf", "generate"], _) => println!("conf creator requires a file name"),
+        ([.., "publish"], _) => println!("{GEN_HELP}"),
+        ([.., "search"], _) => println!("Search requires article name"),
+        ([.., "rm"], _) => println!("Remove requires article name"),
 
         // CLI
         ([.., "new", a], _) => cli_new(a),
         ([.., "edit", a], _) => cli_edit(a),
-        ([.., "publish", _, _], len) => cli_pub(args, len),
+        ([.., "publish", a], _) => cli_pub(a),
+        ([.., "search", a], _) => cli_search(a),
+        ([.., "rm", a], _) => cli_remove(a),
         ([.., "conf", "generate"], _) => conf_make(),
 
         // un accounted for
@@ -39,51 +42,32 @@ pub fn process(args: Vec<String>) {
     };
 }
 
+fn cli_remove(a: &str) {
+    if let Err(error) = std::fs::remove_file(format!("feed/documents/{a}.md")) {
+        println!("error removing document\n{error}");
+    };
+}
+
+fn cli_search(a: &str) {
+    let mut list = Vec::new();
+
+    for x in std::fs::read_dir("feed/documents/").unwrap() {
+        list.push(x.unwrap().file_name().into_string().unwrap_or_default());
+    }
+
+    for x in list {
+        if x.contains(a) {
+            println!("{x}");
+        };
+    }
+}
+
 const GEN_HELP: &str = "Adduce Feed Generate
 generate <name> <platform>
 run generate help for more info";
 
-const GEN_REF: &str = "Adduce Feed Reference
-NAME
-Name refers to the article article name, each article has a unique name
-PLATFORM
-platform is the required target for the article, these include formats such as MD, HTML, TXT.
-As well as media platforms like RSS, Twitter, Mastodon, Github, Instagram";
-
-fn cli_pub(args: Vec<&str>, len: usize) {
+fn cli_pub(document: &str) {
     // adduce feed generate article-name platform
-    if len < 5 {
-        println!("{GEN_HELP}");
-        return;
-    } else if args.contains(&"refrence") {
-        println!("{GEN_REF}");
-        return;
-    };
-
-    if args.len() < 6 {
-        println!("invalid args");
-        return;
-    };
-
-    // supported schemas
-    if !match args[5] {
-        // type
-        "md" | "MD" | "markdown" => true,
-        "html" | "HTML" => true,
-        "txt" | "text" | "plaintext" => false,
-        // social media
-
-        // blogging
-        "rss" | "RSS" => false,
-
-        // social media
-        "insta" | "Insta" | "Instagram" | "instagram" => false,
-
-        _ => false,
-    } {
-        println!("sorry this schema is not yet supported");
-        return;
-    };
 
     let conf = match std::fs::read("feed/conf.toml") {
         Ok(a) => String::from_utf8(a).unwrap(),
@@ -98,7 +82,7 @@ fn cli_pub(args: Vec<&str>, len: usize) {
     // adding content to toml
 
     let text = Object {
-        from_str: Some(format!("feed/documents/{}.md", args[4])),
+        from_str: Some(format!("feed/documents/{document}.md")),
         style: Some(String::from("md")),
         ..Default::default()
     };
@@ -108,12 +92,8 @@ fn cli_pub(args: Vec<&str>, len: usize) {
     } else {
         toml.main.as_mut().unwrap().block.push(text);
     };
-    #[allow(clippy::match_single_binding)]
-    let article = match args[4] {
-        _ => toml.to_html(),
-    };
 
-    std::fs::write(format!("feed/export/{}.html", args[4]), article).unwrap();
+    std::fs::write(format!("feed/export/{document}.html"), toml.to_html()).unwrap();
 }
 
 fn conf_make() {
