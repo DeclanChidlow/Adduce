@@ -259,7 +259,7 @@ fn cli_edit(a: &str) {
         return;
     }
 
-    Command::new("vim")
+    Command::new("nvim")
         .arg(path)
         .spawn()
         .unwrap()
@@ -275,7 +275,7 @@ fn cli_new(a: &str) {
         return;
     }
 
-    Command::new("vim")
+    Command::new("nvim")
         .arg(path)
         .spawn()
         .unwrap()
