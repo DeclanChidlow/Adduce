@@ -16,6 +16,9 @@ cd Adduce
 sh auto/install.sh
 ```
 
+# Dependencies
+```Neovim```
+
 # Addduce feed
 Adduce feed is a managed version of Adduce, with the purpose of creating blogs or other simple documents. Most of the same functionality of Adduce is in Adduce feed but not all
 
