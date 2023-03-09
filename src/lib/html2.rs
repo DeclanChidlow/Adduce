@@ -112,9 +112,13 @@ fn markdown(text: &str) -> String {
 
                 (Some('-'), _, _, _, _, _) => ("li", 1, false),
 
+
+
                 (Some(' '), _, _, _, _, _) => ("no", 0, false),
                 (Some('`'), Some('`'), Some('`'), Some(_), _, _) => ("code_block", 3, false),
                 (Some('`'), Some('`'), Some('`'), None, _, _) => ("code_block_end", 3, false),
+
+                (Some('`'), ..) => ("code", 1, true),
 
                 (Some('\n'), _, _, _, _, _) => ("no", 0, false),
 
