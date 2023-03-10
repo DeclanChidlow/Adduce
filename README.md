@@ -43,4 +43,16 @@ sh auto/install.sh
 ## [Adduce Standard](https://github.com/toastxc/Adduce/wiki)
 
 
+## Troubleshooting
+
+## POSIX
+- ensure that both neovim and wget are installed and are accessible
+- SELinux may interfere with generation, so check for logs or disable it entirely
+- filesystem permissions may also be an issue
+
+## Windows
+Adduce has not been tested on Windows outside of basic functionality, if there is an issue you believe to be platform specific create an issue with the `Windows` tag.
+
+
+
 ![LGPLv3 Badge](/README_RESOURCES/LGPLv3%20Logo.svg)
