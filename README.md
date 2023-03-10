@@ -21,5 +21,7 @@ sh auto/install.sh
 ```wget```
 
 # Adduce feed
-Feed documentation can be found [here]()
+Feed documentation can be found [here](https://github.com/toastxc/Adduce/wiki/Adduce-Feed)
+
+
 ![LGPLv3 Badge](/README_RESOURCES/LGPLv3%20Logo.svg)
