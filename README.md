@@ -16,6 +16,10 @@ cd Adduce
 sh auto/install.sh
 ```
 
+# Dependencies
+```Neovim```
+```wget```
+
 # Addduce feed
 Adduce feed is a managed version of Adduce, with the purpose of creating blogs or other simple documents. Most of the same functionality of Adduce is in Adduce feed but not all
 
@@ -38,7 +42,7 @@ adduce feed edit document
 ## Publish document
 Currently the only supported schema is HTML
 ```bash
-adduce feed publish document html
+adduce feed publish document
 firefox --new-tab ./feed/export/document.html
 ```
 
