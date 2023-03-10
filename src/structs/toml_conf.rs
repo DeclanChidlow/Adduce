@@ -19,6 +19,13 @@ pub struct Conf {
 
 }
 
+impl Conf {
+
+    pub fn new() -> Self {
+        Default::default()
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 
 pub struct Social {
