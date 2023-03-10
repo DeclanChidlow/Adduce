@@ -20,8 +20,12 @@ sh auto/install.sh
 ```Neovim```
 ```wget```
 
-# Adduce feed
-Feed documentation can be found [here](https://github.com/toastxc/Adduce/wiki/Adduce-Feed)
+# Documentation 
+
+
+## [Adduce Feed](https://github.com/toastxc/Adduce/wiki/Adduce-Feed)
+
+## [Adduce Standard](https://github.com/toastxc/Adduce/wiki)
 
 
 ![LGPLv3 Badge](/README_RESOURCES/LGPLv3%20Logo.svg)
