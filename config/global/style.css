@@ -1,6 +1,6 @@
 div {
 
-	border-width: 3px;
+    border-width: 3px;
     margin: 10px;
     padding-left: 10px;
     padding-right: 10px;
@@ -34,10 +34,10 @@ div {
 
 .holder {
 
-	background-color: #333;
-	border-radius: 10px;
-	text-align: left;
-	padding: 15px;
+    background-color: #333;
+    border-radius: 10px;
+    text-align: left;
+    padding: 15px;
 }
 
 .inside {
@@ -88,14 +88,23 @@ div.page {
  h2 {
         margin-bottom: 0px;
     }
+
+
+ .codeblock {
+        border-radius: 0%;
+        padding: 10px;
+        margin-left: -5px;
+        margin-right: -5px;
+
+    }
 }
 
 
 body {
     font-family: 'Trebuchet MS', sans-serif;
-	background-color: #222;
-	color: white;
-	padding: 4px;
+    background-color: #222;
+    color: white;
+    padding: 4px;
 
 }
 
@@ -161,11 +170,15 @@ nestquote {
 }
 
 .codeblock {
-    background-color: black;
+    background-color: #111;
     border-radius: 4px;
     color: lightgreen;
-    padding: 1px;
+    paddin-top: 0px;
+    padding-bottom: 20px;
+
     padding-left: 10px;
+
+
 }
 
 

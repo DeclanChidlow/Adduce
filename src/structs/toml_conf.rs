@@ -14,7 +14,16 @@ pub struct Conf {
     pub style:  Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub main: Option<Main>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub head: Option<Vec<String>>,
 
+}
+
+impl Conf {
+
+    pub fn new() -> Self {
+        Default::default()
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]

@@ -10,15 +10,22 @@ impl Conf {
         }
 
         // CSS stylesheets - not to be confused with 'style'
-        let mut styling = String::new();
+        let mut style_conf = String::new();
 
         if let Some(styles) = self.clone().style {
             for x in styles {
-                styling += &fs_to_str(&x);
+                style_conf += &fs_to_str(&x);
             }
         }
 
-        format!("<!DOCTYPE html>\n<head>\n<style>\n{styling}\n</style>\n</head>\n<body>\n<div class=\"page\">\n{divs}\n</div>\n</body>")
+        let mut head_conf = String::new();
+        if let Some(head) = self.clone().head {
+            for x in head {
+                head_conf += &fs_to_str(&x);
+            }
+        }
+
+        format!("<!DOCTYPE html>\n<head>\n<style>\n{style_conf}\n</style>\n{head_conf}\n</head>\n<body>\n<div class=\"page\">\n{divs}\n</div>\n</body>")
     }
 }
 
@@ -90,18 +97,26 @@ fn markdown(text: &str) -> String {
                 (Some('*'), Some('*'), _, _, _, _) => ("bold", 2, true),
                 (Some('*'), _, _, _, _, _) => ("italic", 1, true),
 
+                // quotes
                 (Some('>'), Some('>'), _, _, _, _) => ("nestquote", 2, false),
                 (Some('>'), _, _, _, _, _) => ("quote", 1, false),
 
                 (Some('<'), Some('/'), _, _, _, _) => ("html_end", 0, false),
-
                 (Some('<'), Some(_), _, _, _, _) => ("html_start", 0, false),
+
+                // images
+                (Some('!'), Some('['), Some(_), Some(_), Some(_), Some(_)) => ("img_emb", 0, false),
+
+                // links
+                (Some('['), Some(_), Some(_), Some(_), Some(_), Some(_)) => ("link_emb", 0, false),
 
                 (Some('-'), _, _, _, _, _) => ("li", 1, false),
 
                 (Some(' '), _, _, _, _, _) => ("no", 0, false),
                 (Some('`'), Some('`'), Some('`'), Some(_), _, _) => ("code_block", 3, false),
                 (Some('`'), Some('`'), Some('`'), None, _, _) => ("code_block_end", 3, false),
+
+                (Some('`'), ..) => ("code", 1, true),
 
                 (Some('\n'), _, _, _, _, _) => ("no", 0, false),
 
@@ -142,6 +157,9 @@ fn markdown(text: &str) -> String {
 
             ("html_start", _) | ("html_end", _) => format!("\n{text_min}"),
 
+            ("img_emb", _) => embed(&text_min, "img_emb"),
+            ("link_emb", _) => embed(&text_min, "link_emb"),
+
             // codeblock start and end
             ("code_block", _) => String::from("\n<pre class=\"codeblock\"><code>"),
             ("code_block_end", _) => String::from("\n</code></pre>"),
@@ -154,6 +172,24 @@ fn markdown(text: &str) -> String {
     }
 
     fin
+}
+
+fn embed(text: &str, style: &str) -> String {
+    let original = text.to_string();
+
+    let text = text.replace(['!', '[', ']', ')'], "");
+
+    let text_split: Vec<String> = text.split('(').map(|s| s.to_string()).collect();
+
+    if text_split.len() == 2 {
+        match style {
+            "img_emb" => format!("<img src=\"{}\" alt=\"{}\">", text_split[1], text_split[0]),
+            "link_emb" => format!("<a href=\"{}\">{}</a> ", text_split[1], text_split[0]),
+            _ => String::new(),
+        }
+    } else {
+        original
+    }
 }
 
 fn pretty_text(text: &str) -> String {

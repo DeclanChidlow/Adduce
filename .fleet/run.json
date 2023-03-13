@@ -9,8 +9,13 @@
             "type": "cargo",
             "name": "clippy",
             "cargoArgs": ["clippy"],
+        },
+
+
+        {
+            "type": "command",
+            "name": "gen",
+            "program": "auto/generate.sh",
         }
-
-
     ]
 }
