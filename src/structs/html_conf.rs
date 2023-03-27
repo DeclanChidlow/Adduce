@@ -22,11 +22,11 @@ impl Generate {
     }
 
     pub fn conf_str(mut self, config: &str) -> Self {
-    
-
         match import_conf(config) {
-            Ok(a) => {self.config = a},
-            Err(e) => {println!("{e}")},
+            Ok(a) => self.config = a,
+            Err(e) => {
+                println!("{e}")
+            }
         }
         self
     }
