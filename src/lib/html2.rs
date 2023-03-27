@@ -1,6 +1,6 @@
-use crate::structs::toml_conf::{Conf, Object};
-
 use super::rfs::fs_to_str;
+use crate::structs::toml_conf::{Conf, Object};
+use pulldown_cmark::{html, Parser};
 
 impl Conf {
     pub fn to_html(&self) -> String {
@@ -54,7 +54,7 @@ fn compile_html(conf: &Object) -> String {
     let mut html = match &style as &str {
         "br" => String::from("\n<br>"),
         "html" => String::from("\n") + &pt_text,
-        "md" => markdown(&text),
+        "md" => md_two(&text),
         // standard
         _ => format!("\n<{style}{id}>{pt_text}\n</{style}>"),
     };
@@ -69,127 +69,11 @@ fn compile_html(conf: &Object) -> String {
     html
 }
 
-fn markdown(text: &str) -> String {
-    let mut fin = String::new();
-    let mut inside_codeblock = false;
-    for x in text.split('\n') {
-        let mut x = x.to_string();
-
-        while x.starts_with(' ') {
-            x.remove(0);
-        }
-
-        let mut c = x.chars();
-
-        let (style, popper, at_end) =
-            match (c.next(), c.next(), c.next(), c.next(), c.next(), c.next()) {
-                // h6 -> h1
-                (Some('#'), Some('#'), Some('#'), Some('#'), Some('#'), Some('#')) => {
-                    ("h6", 6, false)
-                }
-                (Some('#'), Some('#'), Some('#'), Some('#'), Some('#'), _) => ("h5", 5, false),
-                (Some('#'), Some('#'), Some('#'), Some('#'), _, _) => ("h4", 4, false),
-                (Some('#'), Some('#'), Some('#'), _, _, _) => ("h3", 3, false),
-                (Some('#'), Some('#'), _, _, _, _) => ("h2", 2, false),
-                (Some('#'), _, _, _, _, _) => ("h1", 1, false),
-
-                // bold italics
-                (Some('*'), Some('*'), _, _, _, _) => ("bold", 2, true),
-                (Some('*'), _, _, _, _, _) => ("italic", 1, true),
-
-                // quotes
-                (Some('>'), Some('>'), _, _, _, _) => ("nestquote", 2, false),
-                (Some('>'), _, _, _, _, _) => ("quote", 1, false),
-
-                (Some('<'), Some('/'), _, _, _, _) => ("html_end", 0, false),
-                (Some('<'), Some(_), _, _, _, _) => ("html_start", 0, false),
-
-                // images
-                (Some('!'), Some('['), Some(_), Some(_), Some(_), Some(_)) => ("img_emb", 0, false),
-
-                // links
-                (Some('['), Some(_), Some(_), Some(_), Some(_), Some(_)) => ("link_emb", 0, false),
-
-                (Some('-'), _, _, _, _, _) => ("li", 1, false),
-
-                (Some(' '), _, _, _, _, _) => ("no", 0, false),
-                (Some('`'), Some('`'), Some('`'), Some(_), _, _) => ("code_block", 3, false),
-                (Some('`'), Some('`'), Some('`'), None, _, _) => ("code_block_end", 3, false),
-
-                (Some('`'), ..) => ("code", 1, true),
-
-                (Some('\n'), _, _, _, _, _) => ("no", 0, false),
-
-                (Some(_), _, _, _, _, _) => ("p", 0, false),
-
-                _ => ("no", 0, false),
-            };
-
-        // text minus the md formating
-        let mut text_min: String = x.to_owned();
-
-        for _ in 0..popper {
-            text_min.remove(0);
-            if at_end {
-                text_min.pop();
-            };
-        }
-
-        // Set inside_codeblock if the target style
-        // is the start or end of a codeblock.
-        // This is after the inside_codeblock so there
-        // isn't any extra line endings on codeblocks.
-        inside_codeblock = match style {
-            "code_block" => true,
-            "code_block_end" => false,
-            _ => inside_codeblock,
-        };
-
-        // add support for proper use of pre/code elements
-        // for actual support for monospace/codeblocks.
-        fin += match (style, inside_codeblock) {
-            // breakline in and out of codeblock
-            ("br", true) => String::from("\n"),
-            ("br", false) => String::from("\n<br>"),
-
-            //  nulltext
-            ("no", _) => String::new(),
-
-            ("html_start", _) | ("html_end", _) => format!("\n{text_min}"),
-
-            ("img_emb", _) => embed(&text_min, "img_emb"),
-            ("link_emb", _) => embed(&text_min, "link_emb"),
-
-            // codeblock start and end
-            ("code_block", _) => String::from("\n<pre class=\"codeblock\"><code>"),
-            ("code_block_end", _) => String::from("\n</code></pre>"),
-
-            // html in and out of codeblock
-            (_, false) => format!("\n<{style}>\n    {text_min}\n</{style}>"),
-            (_, true) => format!("\n{text_min}"),
-        }
-        .as_ref();
-    }
-
-    fin
-}
-
-fn embed(text: &str, style: &str) -> String {
-    let original = text.to_string();
-
-    let text = text.replace(['!', '[', ']', ')'], "");
-
-    let text_split: Vec<String> = text.split('(').map(|s| s.to_string()).collect();
-
-    if text_split.len() == 2 {
-        match style {
-            "img_emb" => format!("<img src=\"{}\" alt=\"{}\">", text_split[1], text_split[0]),
-            "link_emb" => format!("<a href=\"{}\">{}</a> ", text_split[1], text_split[0]),
-            _ => String::new(),
-        }
-    } else {
-        original
-    }
+fn md_two(text: &str) -> String {
+    let parser = Parser::new(text);
+    let mut html_output = String::new();
+    html::push_html(&mut html_output, parser);
+    html_output
 }
 
 fn pretty_text(text: &str) -> String {
