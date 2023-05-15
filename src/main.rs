@@ -8,9 +8,16 @@ mod structs {
     pub mod toml_conf;
 }
 
-const HELP: &str = "--config configuration directory
---name html filename
---ouput html destination";
+const HELP: &str = "Adduce - static site generator, blog creator & markdown html tool
+
+Usage: adduce [OPTIONS]
+
+Options:
+	-c, --config <path_to_configuration>
+	-n, --name <file_name.html>
+	-o, --ouput <html_destination>
+
+See `adduce feed` for Adduce Feed (blogger) usage.";
 
 pub use serde::{Deserialize, Serialize};
 use structs::html_conf::Generate;
