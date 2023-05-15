@@ -7,9 +7,9 @@ const HELP: &str = "Adduce Feed - create blogs or other simple documents.
 Usage: adduce feed [COMMAND] <argument>
 
 Commands:
-	new <file_name> 	created new article
+	new <file_name> 	create new article
 	edit <file_name>	modify an existing article
-	publish <file_name>	release an article to RSS, Twitter, or other platform";
+	publish <file_name>	build the file with Adduce";
 
 
 pub fn process(args: Vec<String>) {
