@@ -53,8 +53,8 @@ impl Generate {
         self
     }
 
-    pub fn from_conf(genconf: Generate) {
-        generate_html(genconf);
+    pub fn from_conf(genconf: Generate) -> Result<(), Error> {
+        generate_html(genconf)
     }
 
     pub fn void(self) -> Self {
@@ -86,10 +86,7 @@ pub fn generate_html(conf: Generate) -> Result<(), Error> {
     */
 
     // defining output directory
-    let output = conf
-        .ouput
-        .as_ref()
-        .unwrap_or_else(|| &String::from("output"));
+    let output = conf.ouput.unwrap_or_else(|| String::from("output"));
 
     // create and move html file
     let html_file_path = format!(
@@ -103,14 +100,14 @@ pub fn generate_html(conf: Generate) -> Result<(), Error> {
     }
 
     // if html file exists, remove it
-    let file = match File::from_path(&html_file_path) {
-        Ok(file) => file,
-        Err(_) => {
-            let file = File::new().set_path(&html_file_path);
-            file
-        }
+    if let Ok(file) = File::from_path(&html_file_path) {
+        file.delete()?;
     };
+
     // write content
-    file.set_content(&conf.config.to_html()).write()?;
+    File::new()
+        .set_path(&html_file_path)
+        .set_content(&conf.config.to_html()?)
+        .write()?;
     Ok(())
 }
