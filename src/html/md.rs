@@ -9,7 +9,7 @@ impl Conf {
     pub fn to_html(&self) -> Result<String, Error> {
         // main html page
         let mut blocks = String::new();
-        if let Some(Main { block }) = self.main {
+        if let Some(Main { block }) = &self.main {
             for item in block {
                 blocks += &compile_html(&item)?;
             }
@@ -18,7 +18,7 @@ impl Conf {
         // CSS stylesheets - not to be confused with 'style'
         let mut style_conf = String::new();
 
-        if let Some(styles) = self.style {
+        if let Some(styles) = &self.style {
             for path in styles {
                 style_conf += &File::from_path(&path)?.get_content();
             }
@@ -26,12 +26,12 @@ impl Conf {
 
         // HTML head values
         let mut head_conf = String::new();
-        if let Some(head) = self.head {
+        if let Some(head) = &self.head {
             for path in head {
                 head_conf += &File::from_path(&path)?.get_content();
             }
         }
-        let html =  format!("<!DOCTYPE html>\n<head>\n<style>\n{style_conf}\n</style>\n{head_conf}\n</head>\n<body>\n<div class=\"page\">\n{divs}\n</div>\n</body>");
+        let html =  format!("<!DOCTYPE html>\n<head>\n<style>\n{style_conf}\n</style>\n{head_conf}\n</head>\n<body>\n<div class=\"page\">\n{blocks}\n</div>\n</body>");
         Ok(html)
     }
 }
