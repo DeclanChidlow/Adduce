@@ -95,9 +95,7 @@ pub fn generate_html(conf: Generate) -> Result<(), Error> {
     );
 
     // if html directory doesnt exist; create
-    if File::from_path(&output).is_err() {
-        File::new().set_path(&output).write_directory()?;
-    }
+    let _ = File::new().set_path(&output).write_directory();
 
     // if html file exists, remove it
     if let Ok(file) = File::from_path(&html_file_path) {
