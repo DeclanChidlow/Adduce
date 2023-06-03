@@ -7,6 +7,12 @@ pub mod data {
     pub mod toml;
 }
 pub mod html {
-    pub mod feed;
+
     pub mod md;
+}
+pub mod feed {
+    pub mod apps;
+    pub mod cli;
+    pub mod old;
+    pub mod wizard;
 }
