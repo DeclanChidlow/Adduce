@@ -37,46 +37,6 @@ impl Conf {
 }
 
 pub fn compile_html(conf: &Object) -> Result<String, Error> {
-    /*
-    // import configuration and own it
-    let conf: Object = conf.to_owned();
-
-    // define basic style
-    let style = conf.style.unwrap_or_default();
-
-    // define text
-    let text = match conf.from_str {
-        None => conf.text.unwrap_or_else(|| String::from("PLACEHOLDER")),
-        Some(a) => fs_to_str(&a),
-    };
-
-    let pt_text = pretty_text(&text);
-
-    // defines id
-    let id = match conf.id {
-        None => String::new(),
-        Some(a) => format!(" id=\"{a}\""),
-    };
-
-    // mutually exclusive conditionals
-    let mut html = match &style as &str {
-        "br" => String::from("\n<br>"),
-        "html" => String::from("\n") + &pt_text,
-        "md" => md_two(&text),
-        // standard
-        _ => format!("\n<{style}{id}>{pt_text}\n</{style}>"),
-    };
-
-    // optional restructing
-
-    // anchor
-    if let Some(link) = conf.link {
-        html = format!("\n<a href=\"{link}\">\n{html}\n</a>");
-    };
-
-    html
-    */
-
     // import configuration and own it
     let conf: Object = conf.to_owned();
 
@@ -121,13 +81,6 @@ fn md_two(text: &str) -> String {
 }
 
 fn pretty_text(text: &str) -> String {
-    /*
-    let mut fin = String::new();
-    for x in text.split('\n') {
-        fin += &format!("\n    {x}");
-    }
-    fin
-    */
     text.split('\n')
         .map(|item| format!("\n    {item}"))
         .collect()
