@@ -148,10 +148,10 @@ impl File {
     }
 
     pub fn write_directory(&self) -> Result<(), Error> {
-        fs::create_dir(self.path).res()
+        fs::create_dir(&self.path).res()
     }
     pub fn delete_directory(&self) -> Result<(), Error> {
-        fs::remove_dir(self.path).res()
+        fs::remove_dir(&self.path).res()
     }
 
     pub fn set_path(&mut self, path: &str) -> Self {
@@ -175,17 +175,17 @@ impl File {
     }
 
     pub fn write(&self) -> Result<(), Error> {
-        fs::write(self.path, self.content).res()
+        fs::write(&self.path, &self.content).res()
     }
     pub fn new() -> Self {
         Default::default()
     }
 
     pub fn get_content(&self) -> String {
-        self.content
+        self.content.to_owned()
     }
     pub fn get_path(&self) -> String {
-        self.path
+        self.path.to_owned()
     }
     pub fn delete(self) -> Result<(), Error> {
         std::fs::remove_file(self.path).res()
@@ -202,4 +202,8 @@ impl File {
         self.read()?;
         self.toml_from_str()
     }
+}
+
+pub fn args() -> Vec<String> {
+    std::env::args().collect()
 }
