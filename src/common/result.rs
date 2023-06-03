@@ -5,20 +5,27 @@ use std::string::FromUtf8Error;
 // the primary purpose for this kind of system is twofold
 // 1: upstream errors using the ? operator and reduce the use of panics
 // 2: increase the verbosity and usefulness of error messages, there should be no panics
+#[derive(Debug)]
 pub enum Error {
     FileSystem(std::io::Error),
     Markdown(),
     Dependancy(Dependancies),
     FromUtf8(FromUtf8Error),
     Toml(toml::de::Error),
+    Command(String),
+    CLI(CLIErrors),
 }
+#[derive(Debug)]
+pub enum CLIErrors {
+    InvalidArgument,
+    TooFewArguments,
+}
+#[derive(Debug)]
 pub enum Dependancies {
     Neofetch,
     Wget,
 }
 
-// traits
-// todo implement trait for every error type
 pub trait ErrorConvert<T: std::fmt::Debug> {
     fn res(self) -> Result<T, Error>;
 }
