@@ -8,7 +8,6 @@ use std::string::FromUtf8Error;
 #[derive(Debug)]
 pub enum Error {
     FileSystem(std::io::Error),
-    Markdown(),
     Dependancy(Dependancies),
     FromUtf8(FromUtf8Error),
     Toml(toml::de::Error),
