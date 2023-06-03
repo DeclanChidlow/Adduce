@@ -1,7 +1,14 @@
+use std::fs;
+
+use super::result::{Error, ErrorConvert};
+
+/*
 use core::fmt;
 use std::{io::Read, str::from_utf8};
 
 use crate::data::toml::Conf;
+
+use super::result::{Error, ErrorConvert};
 
 // given a directory return the content
 #[allow(dead_code)]
@@ -123,4 +130,76 @@ pub fn copy_file(filename: &str, input_dir: &str, output_dir: &str) {
         &format!("{output_dir}/{filename}"),
         &fs_to_str(&format!("{input_dir}/{filename}")),
     );
+}
+*/
+#[derive(Debug, Default, Clone)]
+pub struct File {
+    path: String,
+    content: String,
+}
+
+// todo crud
+impl File {
+    pub fn from_path(path: &str) -> Result<Self, Error> {
+        let path = String::from(path);
+        let content = String::from_utf8(fs::read(&path).res()?).res()?;
+
+        Ok(Self { path, content })
+    }
+
+    pub fn write_directory(&self) -> Result<(), Error> {
+        fs::create_dir(self.path).res()
+    }
+    pub fn delete_directory(&self) -> Result<(), Error> {
+        fs::remove_dir(self.path).res()
+    }
+
+    pub fn set_path(&mut self, path: &str) -> Self {
+        self.path = String::from(path);
+        self.to_owned()
+    }
+    pub fn set_content(&mut self, content: &str) -> Self {
+        self.content = String::from(content);
+        self.to_owned()
+    }
+
+    pub fn read(&self) -> Result<Self, Error> {
+        Self::from_path(&self.path)
+    }
+
+    pub fn to_path(&mut self, new_path: Option<&str>) -> Result<(), Error> {
+        if let Some(new_path) = new_path {
+            self.path = String::from(new_path);
+        };
+        self.write()
+    }
+
+    pub fn write(&self) -> Result<(), Error> {
+        fs::write(self.path, self.content).res()
+    }
+    pub fn new() -> Self {
+        Default::default()
+    }
+
+    pub fn get_content(&self) -> String {
+        self.content
+    }
+    pub fn get_path(&self) -> String {
+        self.path
+    }
+    pub fn delete(self) -> Result<(), Error> {
+        std::fs::remove_file(self.path).res()
+    }
+
+    pub fn toml_from_str<T: serde::de::DeserializeOwned + std::fmt::Debug>(
+        &self,
+    ) -> Result<T, Error> {
+        toml::from_str(&self.content).res()
+    }
+    pub fn toml_from_path<T: serde::de::DeserializeOwned + std::fmt::Debug>(
+        &self,
+    ) -> Result<T, Error> {
+        self.read()?;
+        self.toml_from_str()
+    }
 }
