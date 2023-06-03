@@ -1,6 +1,6 @@
 pub mod common {
-    pub mod result;
     pub mod fs;
+    pub mod result;
 }
 pub mod data {
     pub mod html;
