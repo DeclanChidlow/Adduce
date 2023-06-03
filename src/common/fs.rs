@@ -1,7 +1,7 @@
 use core::fmt;
 use std::{io::Read, str::from_utf8};
 
-use crate::structs::toml_conf::Conf;
+use crate::data::toml::Conf;
 
 // given a directory return the content
 #[allow(dead_code)]

@@ -1,6 +1,6 @@
-use crate::lib::rfs::{import_conf, str_to_fs};
+use crate::common::fs::{import_conf, str_to_fs};
 
-use super::toml_conf::Conf;
+use super::toml::Conf;
 
 #[derive(Default, Debug, Clone)]
 pub struct Generate {

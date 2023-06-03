@@ -1,13 +1,3 @@
-mod lib {
-    pub mod html2;
-    pub mod rfs;
-    pub mod rss;
-}
-mod structs {
-    pub mod html_conf;
-    pub mod toml_conf;
-}
-
 const HELP: &str = "Adduce - static site generator, blog creator & markdown html tool
 
 Usage: adduce [OPTIONS]
@@ -19,8 +9,8 @@ Options:
 
 See `adduce feed` for Adduce Feed (blogger) usage.";
 
+use adduce::{data::html::Generate, html::feed};
 pub use serde::{Deserialize, Serialize};
-use structs::html_conf::Generate;
 
 fn main() {
     let args = args();
@@ -33,7 +23,7 @@ fn main() {
 
     // adduce feed is a seperate service to the main site builder
     if args.contains(&String::from("feed")) {
-        lib::rss::process(args);
+        feed::process(args);
         return;
     }
 

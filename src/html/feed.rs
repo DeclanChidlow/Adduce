@@ -1,6 +1,6 @@
 use std::process::Command;
 
-use crate::structs::toml_conf::{Conf, Main, Object};
+use crate::data::toml::{Conf, Main, Object};
 
 const HELP: &str = "Adduce Feed - create blogs or other simple documents.
 
@@ -10,7 +10,6 @@ Commands:
 	new <file_name> 	create new article
 	edit <file_name>	modify an existing article
 	publish <file_name>	build the file with Adduce";
-
 
 pub fn process(args: Vec<String>) {
     feed_dir();

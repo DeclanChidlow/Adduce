@@ -1,6 +1,9 @@
-use super::rfs::fs_to_str;
-use crate::structs::toml_conf::{Conf, Object};
 use pulldown_cmark::{html, Parser};
+
+use crate::{
+    common::fs::fs_to_str,
+    data::toml::{Conf, Object},
+};
 
 impl Conf {
     pub fn to_html(&self) -> String {
