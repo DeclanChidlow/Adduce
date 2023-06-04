@@ -1,0 +1,17 @@
+style = ["config/global/style/standardstyle.css"]
+
+head = ["config/global/elements/head.html"]
+
+[main]
+
+[[main.block]]
+from_str = "config/global/elements/navbar.html"
+style = "html"
+
+[[main.block]]
+from_str = "config/pages/donate/donate.md"
+style = "md"
+
+[[main.block]]
+from_str = "config/global/elements/footer.html"
+style = "html"

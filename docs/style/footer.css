@@ -1,0 +1,8 @@
+footer {
+    width: 100%;
+    text-align: center;
+}
+
+footer a:link, footer a:visited, footer a:hover, footer a:active {
+    color: var(--yellow);
+}

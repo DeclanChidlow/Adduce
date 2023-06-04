@@ -1,0 +1,19 @@
+nav {
+	font-size: 20px;
+	font-weight: bold;
+	text-transform: uppercase;
+	text-align: right;
+}
+
+nav ul {
+	all: unset;
+}
+
+nav li {
+	display: inline;
+}
+
+nav a, nav a:link, nav a:visited, nav a:focus, nav a:hover, nav a:active {
+	all: unset;
+	cursor: pointer;
+}

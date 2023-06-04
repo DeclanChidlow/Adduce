@@ -1,0 +1,19 @@
+header {
+	margin: -85px -100px 0 -40px;
+	padding: 200px 50px 40px 40px;
+	text-transform: uppercase;
+	background: linear-gradient(magenta, rgba(255,0,0,0));
+	font-size: 20px; 
+}
+
+header ul {
+	all: unset;
+}
+
+header li {
+	display: inline;
+}
+
+header h1 {
+	line-height: 60px;
+}
