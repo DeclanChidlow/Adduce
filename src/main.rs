@@ -27,7 +27,7 @@ fn main() {
 
     // if the length is 2 then there are no CLI args
     if args.len() < 2 {
-        println!("{}", HELP);
+        println!("{HELP}");
         return;
     };
 

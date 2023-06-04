@@ -9,4 +9,5 @@ edition = "2021"
 serde = { version = "1.0.152", features = ["derive"] }
 optional_struct = "0.2.0"
 toml = "0.5.10"
+pulldown-cmark = "0.9.2"
 
