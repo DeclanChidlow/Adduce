@@ -1,7 +1,7 @@
 use adduce::{
     common::{
         fs::args,
-        result::{CLIErrors, Error},
+        result::{CLIErrors, Error, ErrorType},
     },
     data::html::Generate,
     feed,
@@ -44,7 +44,7 @@ See `adduce feed` for Adduce Feed (blogger) usage.";
 fn adduce_standard(args: Vec<String>) -> Result<(), Error> {
     // the CLI is strucuted so that - if used properly there are an odd number of args
     if args.len() % 2 == 0 {
-        return Err(Error::CLI(CLIErrors::TooFewArguments));
+        return Err(ErrorType::CLI(CLIErrors::TooFewArguments).into());
     }
 
     let mut genconf = Generate::new();
