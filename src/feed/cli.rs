@@ -1,5 +1,8 @@
 use crate::{
-    common::{fs::File, result::Error},
+    common::{
+        fs::File,
+        result::{Dependancies, Error, ErrorType},
+    },
     data::toml::{Conf, Main, Object},
 };
 
@@ -28,10 +31,14 @@ pub fn process(mut original_args: Vec<String>) -> Result<(), Error> {
         }
         // nvim editor
         ["new", docname, ..] | ["edit", docname, ..] => {
-            Com::spawn(
+            if Com::spawn(
                 "nvim",
                 Some(vec![&format!("./feed/documents/{docname}.md")]),
-            )?;
+            )
+            .is_err()
+            {
+                return Err(ErrorType::Dependancy(Dependancies::Neovim).into());
+            }
         }
 
         ["publish", docname, ..] => {

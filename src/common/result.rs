@@ -58,7 +58,7 @@ pub enum CLIErrors {
 }
 #[derive(Debug)]
 pub enum Dependancies {
-    Neofetch,
+    Neovim,
     Wget,
 }
 
