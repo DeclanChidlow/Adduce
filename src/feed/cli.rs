@@ -1,7 +1,9 @@
-/*
-use std::process::Command;
+use crate::{
+    common::{fs::File, result::Error},
+    data::toml::{Conf, Main, Object},
+};
 
-use crate::data::toml::{Conf, Main, Object};
+use super::apps::Com;
 
 const HELP: &str = "Adduce Feed - create blogs or other simple documents.
 
@@ -12,55 +14,49 @@ Commands:
     edit <file_name>	modify an existing article
     publish <file_name>	build the file with Adduce";
 
-pub fn process(args: Vec<String>) {
-    feed_dir();
+pub fn process(mut original_args: Vec<String>) -> Result<(), Error> {
+    original_args.remove(0);
+    original_args.remove(0);
 
-    // turned into a vec of strs
-    let mut newstr = String::new();
-    for x in args {
-        newstr += &format!(" {x}");
+    let original_args = original_args.to_owned();
+    let args: Vec<&str> = original_args.iter().map(|s| s.as_str()).collect();
+
+    match args.as_slice() {
+        // no commands given
+        a if a.is_empty() => {
+            println!("{HELP}");
+        }
+        // nvim editor
+        ["new", docname, ..] | ["edit", docname, ..] => {
+            Com::spawn(
+                "nvim",
+                Some(vec![&format!("./feed/documents/{docname}.md")]),
+            )?;
+        }
+
+        ["publish", docname, ..] => {
+            let mut config = File::from_path("./feed/conf.toml")?.toml_from_str::<Conf>()?;
+
+            // adding content to toml
+            let text = Object {
+                from_str: Some(format!("./feed/documents/{docname}.md")),
+                style: Some(String::from("md")),
+                ..Default::default()
+            };
+
+            if let Some(mut content) = config.main.clone() {
+                content.block.push(text)
+            } else {
+                config.main = Some(Main { block: vec![text] });
+            };
+
+            File::new()
+                .set_path(&format!("./feed/export/{docname}.html"))
+                .set_content(&config.to_html()?)
+                .write()?;
+        }
+
+        _ => println!("{HELP}"),
     }
-
-    let args: Vec<&str> = newstr.split(' ').collect();
-
-    match (args.as_slice(), args.len()) {
-        // exceptions
-        (_, 2) | (_, 3) => println!("{HELP}"),
-
-        // CLI incomplete
-        ([.., "new"], _) => println!("New requires article name"),
-        ([.., "edit"], _) => println!("Edit requires article name"),
-        ([.., "publish"], _) => println!("{GEN_HELP}"),
-        ([.., "search"], _) => println!("Search requires article name"),
-        ([.., "rm"], _) => println!("Remove requires article name"),
-
-        // CLI
-        ([.., "new", a], _) => cli_new(a),
-        ([.., "edit", a], _) => cli_edit(a),
-        ([.., "publish", a], _) => cli_pub(a),
-        ([.., "search", a], _) => cli_search(a),
-        ([.., "rm", a], _) => cli_remove(a),
-        ([.., "conf", "generate"], _) => conf_make(),
-
-        // un accounted for
-        _ => panic!("no"),
-    };
-}
-*/
-
-use crate::common::result::Error;
-
-const _HELP: &str = "Adduce Feed - create blogs or other simple documents.
-
-Usage: adduce feed [COMMAND] <argument>
-
-Commands:
-    new <file_name> 	create new article
-    edit <file_name>	modify an existing article
-    publish <file_name>	build the file with Adduce";
-
-pub fn process(args: Vec<String>) -> Result<(), Error> {
-    println!("{:#?}", args);
-
     Ok(())
 }
