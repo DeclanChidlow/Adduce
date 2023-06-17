@@ -11,7 +11,7 @@ impl Conf {
         let mut blocks = String::new();
         if let Some(Main { block }) = &self.main {
             for item in block {
-                blocks += &compile_html(&item)?;
+                blocks += &compile_html(item)?;
             }
         }
 
@@ -20,7 +20,7 @@ impl Conf {
 
         if let Some(styles) = &self.style {
             for path in styles {
-                style_conf += &File::from_path(&path)?.get_content();
+                style_conf += &File::from_path(path)?.get_content();
             }
         }
 
@@ -28,7 +28,7 @@ impl Conf {
         let mut head_conf = String::new();
         if let Some(head) = &self.head {
             for path in head {
-                head_conf += &File::from_path(&path)?.get_content();
+                head_conf += &File::from_path(path)?.get_content();
             }
         }
         let html =  format!("<!DOCTYPE html>\n<head>\n<style>\n{style_conf}\n</style>\n{head_conf}\n</head>\n<body>\n<div class=\"page\">\n{blocks}\n</div>\n</body>");
