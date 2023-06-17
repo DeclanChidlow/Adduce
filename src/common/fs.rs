@@ -12,16 +12,16 @@ pub struct File {
 impl File {
     pub fn from_path(path: &str) -> Result<Self, Error> {
         let path = String::from(path);
-        let content = String::from_utf8(fs::read(&path).res()?).res()?;
+        let content = String::from_utf8(fs::read(&path).res_msg(Some(&path))?).res()?;
 
         Ok(Self { path, content })
     }
 
     pub fn write_directory(&self) -> Result<(), Error> {
-        fs::create_dir(&self.path).res()
+        fs::create_dir(&self.path).res_msg(Some(&self.path))
     }
     pub fn delete_directory(&self) -> Result<(), Error> {
-        fs::remove_dir(&self.path).res()
+        fs::remove_dir(&self.path).res_msg(Some(&self.path))
     }
 
     pub fn set_path(&mut self, path: &str) -> Self {
@@ -45,7 +45,7 @@ impl File {
     }
 
     pub fn write(&self) -> Result<(), Error> {
-        fs::write(&self.path, &self.content).res()
+        fs::write(&self.path, &self.content).res_msg(Some(&self.path))
     }
     pub fn new() -> Self {
         Default::default()
@@ -58,13 +58,13 @@ impl File {
         self.path.to_owned()
     }
     pub fn delete(self) -> Result<(), Error> {
-        std::fs::remove_file(self.path).res()
+        std::fs::remove_file(&self.path).res_msg(Some(&self.path))
     }
 
     pub fn toml_from_str<T: serde::de::DeserializeOwned + std::fmt::Debug>(
         &self,
     ) -> Result<T, Error> {
-        toml::from_str(&self.content).res()
+        toml::from_str(&self.content).res_msg(Some(&self.content))
     }
     pub fn toml_from_path<T: serde::de::DeserializeOwned + std::fmt::Debug>(
         &self,
