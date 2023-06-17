@@ -1,4 +1,4 @@
-use std::string::FromUtf8Error;
+use std::{fmt, string::FromUtf8Error};
 
 // Error type
 // this type incapsulates every type of error that adduce could encounter
@@ -14,6 +14,22 @@ pub enum Error {
     Command(String),
     CLI(CLIErrors),
 }
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let message = match self {
+            Error::FileSystem(error) => format!("{error}"),
+            Error::Dependancy(error) => format!("This program requires the program: {error}"),
+            Error::FromUtf8(error) => format!("{error}"),
+            Error::Toml(error) => format!("{error}"),
+            Error::Command(error) => format!("{error}"),
+            Error::CLI(error) => format!("{error}"),
+        };
+
+        write!(f, "{message}")
+    }
+}
+
 #[derive(Debug)]
 pub enum CLIErrors {
     InvalidArgument,
@@ -25,11 +41,22 @@ pub enum Dependancies {
     Wget,
 }
 
-pub trait ErrorConvert<T: std::fmt::Debug> {
+impl fmt::Display for Dependancies {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{self}")
+    }
+}
+impl fmt::Display for CLIErrors {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{self}")
+    }
+}
+
+pub trait ErrorConvert<T: fmt::Debug> {
     fn res(self) -> Result<T, Error>;
 }
 
-impl<T: std::fmt::Debug> ErrorConvert<T> for Result<T, std::io::Error> {
+impl<T: fmt::Debug> ErrorConvert<T> for Result<T, std::io::Error> {
     fn res(self) -> Result<T, Error> {
         match self {
             Ok(data) => Ok(data),
@@ -38,7 +65,7 @@ impl<T: std::fmt::Debug> ErrorConvert<T> for Result<T, std::io::Error> {
     }
 }
 
-impl<T: std::fmt::Debug> ErrorConvert<T> for Result<T, Dependancies> {
+impl<T: fmt::Debug> ErrorConvert<T> for Result<T, Dependancies> {
     fn res(self) -> Result<T, Error> {
         match self {
             Ok(data) => Ok(data),
@@ -46,7 +73,7 @@ impl<T: std::fmt::Debug> ErrorConvert<T> for Result<T, Dependancies> {
         }
     }
 }
-impl<T: std::fmt::Debug> ErrorConvert<T> for Result<T, FromUtf8Error> {
+impl<T: fmt::Debug> ErrorConvert<T> for Result<T, FromUtf8Error> {
     fn res(self) -> Result<T, Error> {
         match self {
             Ok(data) => Ok(data),
@@ -55,7 +82,7 @@ impl<T: std::fmt::Debug> ErrorConvert<T> for Result<T, FromUtf8Error> {
     }
 }
 
-impl<T: std::fmt::Debug> ErrorConvert<T> for Result<T, toml::de::Error> {
+impl<T: fmt::Debug> ErrorConvert<T> for Result<T, toml::de::Error> {
     fn res(self) -> Result<T, Error> {
         match self {
             Ok(data) => Ok(data),
