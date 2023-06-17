@@ -1,0 +1,12 @@
+[main]
+
+# text can be hardcoded in blocks
+[[main.block]]
+style = "h1"
+text = "Adduce"
+
+
+[[main.block]]
+style = "h3"
+text = "Valence & ToastXC"
+
