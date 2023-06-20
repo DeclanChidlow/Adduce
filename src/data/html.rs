@@ -1,6 +1,6 @@
-use crate::lib::rfs::{import_conf, str_to_fs};
+use crate::common::{fs::File, result::Error};
 
-use super::toml_conf::Conf;
+use super::toml::Conf;
 
 #[derive(Default, Debug, Clone)]
 pub struct Generate {
@@ -21,16 +21,12 @@ impl Generate {
         Default::default()
     }
 
-    pub fn conf_str(mut self, config: &str) -> Self {
-        match import_conf(config) {
-            Ok(a) => self.config = a,
-            Err(e) => {
-                println!("{e}")
-            }
-        }
-        self
+    pub fn conf_str(&mut self, config: &str) -> Result<Self, Error> {
+        let file: Conf = File::from_path(config)?.toml_from_path()?;
+        self.config = file;
+        Ok(self.to_owned())
     }
-    #[allow(dead_code)]
+
     pub fn input_dir(mut self, directory: &str) -> Self {
         self.input = Some(String::from(directory));
         self
@@ -45,8 +41,8 @@ impl Generate {
         self
     }
 
-    pub fn from_conf(genconf: Generate) {
-        generate_html(genconf);
+    pub fn from_conf(genconf: Generate) -> Result<(), Error> {
+        generate_html(genconf)
     }
 
     pub fn void(self) -> Self {
@@ -54,24 +50,28 @@ impl Generate {
     }
 }
 
-pub fn generate_html(conf: Generate) {
+pub fn generate_html(conf: Generate) -> Result<(), Error> {
     // defining output directory
-    let output = conf.ouput.clone().unwrap_or_else(|| String::from("output"));
+    let output = conf.ouput.unwrap_or_else(|| String::from("output"));
 
     // create and move html file
-    let html_dir = format!(
+    let html_file_path = format!(
         "{output}/{}",
         conf.filename.unwrap_or_else(|| String::from("index.html"))
     );
 
-    if std::fs::File::open(&html_dir).is_ok() {
-        std::fs::remove_file(&html_dir).unwrap();
-    }
+    // if html directory doesnt exist; create
+    let _ = File::new().set_path(&output).write_directory();
 
-    if std::fs::read_dir(output.clone()).is_err() {
-        std::fs::create_dir(output).unwrap()
+    // if html file exists, remove it
+    if let Ok(file) = File::from_path(&html_file_path) {
+        file.delete()?;
     };
 
-    std::fs::File::create(&html_dir).unwrap();
-    str_to_fs(&html_dir, &conf.config.to_html());
+    // write content
+    File::new()
+        .set_path(&html_file_path)
+        .set_content(&conf.config.to_html()?)
+        .write()?;
+    Ok(())
 }
