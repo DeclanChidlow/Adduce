@@ -28,7 +28,7 @@ Adduce Feeds was originally made as a managed tool for Adduce but was found to b
 ```bash
 git clone https://github.com/DeclanChidlow/Adduce
 cd Adduce
-sh auto/install.sh
+sh install.sh
 ```
 ### Package Managers
 Adduce is currently not avaliable in any package managers but will likely be added to the Arch User Repository soon.
