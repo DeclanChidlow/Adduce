@@ -1,13 +1,17 @@
 [package]
 name = "adduce"
-version = "0.1.0"
+version = "0.1.1"
+authors = ["Declan Chidlow <vale@vale.rocks>", "ToastXC <contact@toastxc.xyz>"]
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "A blazingly fast static site generator"
+homepage = "https://adduce.vale.rocks"
+repository = "https://github.com/DeclanChidlow/Adduce"
+license = "LGPL-3.0-or-later"
+keywords = ["cli", "generator", "static", "ssg", "site"]
+categories = ["command-line-utilities", "web-programming", "parsing", "template-engine"]
 
 [dependencies]
-serde = { version = "1.0.152", features = ["derive"] }
-optional_struct = "0.2.0"
-toml = "0.5.10"
-pulldown-cmark = "0.9.2"
-
+serde = { version = "1.0.164", features = ["derive"] }
+optional_struct = "0.3.1"
+toml = "0.7.4"
+pulldown-cmark = "0.9.3"
