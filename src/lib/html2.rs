@@ -1,6 +1,6 @@
 use super::rfs::fs_to_str;
 use crate::structs::toml_conf::{Conf, Object};
-use pulldown_cmark::{html, Parser};
+use pulldown_cmark::{Parser, Options, html};
 
 impl Conf {
     pub fn to_html(&self) -> String {
@@ -70,11 +70,14 @@ fn compile_html(conf: &Object) -> String {
 }
 
 fn md_two(text: &str) -> String {
-    let parser = Parser::new(text);
     let mut html_output = String::new();
-    html::push_html(&mut html_output, parser);
+    html::push_html(
+        &mut html_output,
+        Parser::new_ext(text, Options::ENABLE_HEADING_ATTRIBUTES),
+    );
     html_output
 }
+
 
 fn pretty_text(text: &str) -> String {
     let mut fin = String::new();
