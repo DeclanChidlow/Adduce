@@ -73,7 +73,7 @@ fn md_two(text: &str) -> String {
     let mut html_output = String::new();
     html::push_html(
         &mut html_output,
-        Parser::new_ext(text, Options::ENABLE_HEADING_ATTRIBUTES),
+        Parser::new_ext(text, Options::ENABLE_HEADING_ATTRIBUTES | Options::ENABLE_STRIKETHROUGH | Options::ENABLE_TABLES | Options::ENABLE_TASKLISTS),
     );
     html_output
 }
