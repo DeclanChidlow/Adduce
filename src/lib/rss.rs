@@ -11,7 +11,6 @@ Commands:
 	edit <file_name>	modify an existing article
 	publish <file_name>	build the file with Adduce";
 
-
 pub fn process(args: Vec<String>) {
     feed_dir();
 
@@ -146,7 +145,7 @@ fn conf_wizard() -> Conf {
     }
 
     if iter == 0 {
-        let yeslist = vec!["y", "Y", "yes", "Yes", "YES"];
+        let yeslist = ["y", "Y", "yes", "Yes", "YES"];
 
         println!("no stylesheets found! would you like to download one from us?");
         let mut temp = String::new();

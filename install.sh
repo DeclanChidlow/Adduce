@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 cargo b -r
-sudo rm  /usr/bin/adduce
-sudo cp target/release/adduce /usr/bin/
+sudo rm  /bin/adduce
+sudo cp target/release/adduce /bin/
 echo "Completed."
