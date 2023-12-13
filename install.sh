@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
-cargo b -r
-sudo rm  /bin/adduce
+set -e
+
+cargo build
+
+if [[ -f /bin/adduce ]]; then
+    sudo rm /bin/adduce
+fi
+
 sudo cp target/release/adduce /bin/
-echo "Completed."
+echo "Completed!"
