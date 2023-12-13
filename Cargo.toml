@@ -1,6 +1,6 @@
 [package]
 name = "adduce"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Declan Chidlow <vale@vale.rocks>", "ToastXC <contact@toastxc.xyz>"]
 edition = "2021"
 description = "A blazingly fast static site generator"
@@ -11,7 +11,8 @@ keywords = ["cli", "generator", "static", "ssg", "site"]
 categories = ["command-line-utilities", "web-programming", "parsing", "template-engine"]
 
 [dependencies]
-serde = { version = "1.0.164", features = ["derive"] }
-optional_struct = "0.3.1"
-toml = "0.7.4"
+serde = { version = "1.0.193", features = ["derive"] }
+optional_struct = "0.3.2"
+toml = "0.8.8"
 pulldown-cmark = "0.9.3"
+rss = "2.0.6"

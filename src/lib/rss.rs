@@ -1,5 +1,7 @@
 // Import necessary libraries and modules
 use crate::structs::toml_conf::{Conf, Main, Object};
+use rss::{ChannelBuilder, ItemBuilder};
+use std::fs;
 use std::process::Command;
 
 // Define constant strings for help messages
@@ -46,6 +48,34 @@ pub fn process(args: Vec<String>) {
         // un accounted for
         _ => panic!("no"),
     };
+}
+
+fn generate_rss() {
+    let mut items = Vec::new();
+
+    for entry in fs::read_dir("feed/documents/").unwrap() {
+        let entry = entry.unwrap();
+        let path = entry.path();
+        let content = fs::read_to_string(&path).unwrap_or_default();
+
+        let item = ItemBuilder::default()
+            .title(Some(
+                path.file_name().unwrap().to_string_lossy().to_string(),
+            ))
+            .description(Some(content))
+            .build();
+
+        items.push(item);
+    }
+
+    let channel = ChannelBuilder::default()
+        .title("My RSS Feed".to_string())
+        .link("http://example.com".to_string())
+        .description("An RSS feed of my documents".to_string())
+        .items(items)
+        .build();
+
+    fs::write("feed.rss", channel.to_string()).unwrap();
 }
 
 // Function to remove a document
@@ -103,6 +133,8 @@ fn cli_pub(document: &str) {
     };
 
     std::fs::write(format!("feed/export/{document}.html"), toml.to_html()).unwrap();
+
+    generate_rss();
 }
 
 // Function to create a configuration file
