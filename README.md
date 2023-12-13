@@ -1,4 +1,5 @@
-<h1 align="center">
+<div align="center">
+<h1>
   Adduce
   
   [![Stars](https://img.shields.io/github/stars/DeclanChidlow/Adduce?style=flat-square&logoColor=white)](https://github.com/DeclanChidlow/Adduce/stargazers)
@@ -8,20 +9,22 @@
   [![Contributors](https://img.shields.io/github/contributors/DeclanChidlow/Adduce?style=flat-square&logoColor=white)](https://github.com/DeclanChidlow/Adduce/graphs/contributors)
   [![Licence](https://img.shields.io/github/license/DeclanChidlow/Adduce?style=flat-square&logoColor=white)](https://github.com/DeclanChidlow/Adduce/blob/main/LICENCE)
 </h1>
+Versatile static site generator written in Rust.
+</div>
 
-
-## About
-Adduce is a static site generator, blog creator and markdown html tool all in one, originally designed to make the singlepage website creation easier it has expanded functionality to support much more
-
-### Adduce lib
-Adducelib contains the markdown and HTML engine and will support more schemas in the future
+Adduce is split into two destinct parts. Standard, and Feed.
 
 ### Adduce Standard
-Adduce Standard is the static site generator that powers [Toast's Site](https://toastxc.xyz) and a few others, it is designed to be used as a bash utility with one TOML file per page and absolute control over page content and directory structure.
+Adduce Standard is is used to generate individual pages. It's designed to be scripted in BASH and leverages a TOML file per page to grant absolute control over content and directory structure.
 
 ### Adduce Feed
-Adduce Feeds was originally made as a managed tool for Adduce but was found to be more suitable for blogging, unlike Adduce Standard each page or 'blog' uses the same toml file, with a simple wizard for creating it. Feed gives less control over filesystem access for the sake of ease-of-use. Feed is the only service needed for creating a blog outside of hosting.
+Originally conceived as a management tool for Adduce, Adduce Feed found its niche in the realm of blogging. In contrast to Adduce Standard, all pages are generated from a single TOML file, and configuration can be simplified through an intergrated setup wizard. Feed does sacrifice some filesystem control for user-friendliness and works well when used alongside Adduce Standard.
 
+### Sites Using Adduce
+- [Adduce - https://adduce.vale.rocks](https://adduce.vale.rocks)
+- [Vale.Rocks - https://vale.rocks](https://vale.rocks)
+- [Mutant Remix - https://mutant.revolt.chat](https://mutant.revolt.chat)
+- [ToastXC's Site - https://toastxc.xyz](https://toastxc.xyz)
 
 ## Installation
 ### Manual Install
@@ -37,14 +40,4 @@ Adduce is currently not avaliable in any package managers but will likely be add
 `wget`
 
 ## Documentation 
-The project's usage is documented in the wiki.
-- [Adduce Feed](https://github.com/DeclanChidlow/Adduce/wiki/Adduce-Feed)
-- [Adduce Standard](https://github.com/DeclanChidlow/Adduce/wiki)
-
-If you need documentation on the code itself then you are best off checking the comments.
-
-## Troubleshooting
-- Ensure that all dependencies are installed and accessible
-- Ensure you have permissions for the working directory
-
-![LGPLv3 Badge](/README_RESOURCES/LGPLv3%20Logo.svg)
+The project's usage is [documented in the wiki](https://github.com/DeclanChidlow/Adduce/wiki/Adduce-Feed). If you want documentation for the code itself then you are best off checking the comments.
