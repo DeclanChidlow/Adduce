@@ -1,6 +1,6 @@
 [package]
 name = "adduce"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Declan Chidlow <vale@vale.rocks>", "ToastXC <contact@toastxc.xyz>"]
 edition = "2021"
 description = "A blazingly fast static site generator"
