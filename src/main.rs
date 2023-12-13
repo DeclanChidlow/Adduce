@@ -1,3 +1,4 @@
+// Import necessary modules
 mod lib {
     pub mod html2;
     pub mod rfs;
@@ -8,6 +9,7 @@ mod structs {
     pub mod toml_conf;
 }
 
+// Define a constant string for the help message
 const HELP: &str = "Adduce - static site generator, blog creator & markdown html tool
 
 Usage: adduce [OPTIONS]
@@ -19,32 +21,37 @@ Options:
 
 See `adduce feed` for Adduce Feed (blogger) usage.";
 
+// Import necessary traits from the serde crate
 pub use serde::{Deserialize, Serialize};
 use structs::html_conf::Generate;
 
+// Main function
 fn main() {
+    // Get the command line arguments
     let args = args();
 
-    // if the length is 2 then there are no CLI args
+    // If there are no command line arguments, print the help message and return
     if args.len() < 2 {
         println!("{HELP}");
         return;
     };
 
-    // adduce feed is a seperate service to the main site builder
+    // If the command line arguments contain "feed", process them with the RSS module and return
     if args.contains(&String::from("feed")) {
         lib::rss::process(args);
         return;
     }
 
-    // the CLI is strucuted so that - if used properly there are an odd number of args
+    // If the number of command line arguments is even, print an error message and return
     if args.len() % 2 == 0 {
         println!("invalid args");
         return;
     }
 
+    // Initialize a new Generate object
     let mut genconf = Generate::new();
 
+    // Iterate over the command line arguments and update the Generate object based on them
     for x in 0..args.len() {
         genconf = match args[x].as_str() {
             "--config" | "-c" => genconf.conf_str(&format!("{}/conf.toml", &args[x + 1])),
@@ -54,9 +61,11 @@ fn main() {
         };
     }
 
+    // Generate the final output from the Generate object
     Generate::from_conf(genconf);
 }
 
+// Function to get the command line arguments
 fn args() -> Vec<String> {
     let mut vec = Vec::new();
     for x in std::env::args() {

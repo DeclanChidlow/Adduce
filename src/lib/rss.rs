@@ -1,7 +1,8 @@
+// Import necessary libraries and modules
+use crate::structs::toml_conf::{Conf, Main, Object};
 use std::process::Command;
 
-use crate::structs::toml_conf::{Conf, Main, Object};
-
+// Define constant strings for help messages
 const HELP: &str = "Adduce Feed - create blogs or other simple documents.
 
 Usage: adduce feed [COMMAND] <argument>
@@ -11,6 +12,7 @@ Commands:
 	edit <file_name>	modify an existing article
 	publish <file_name>	build the file with Adduce";
 
+// Main function to process command line arguments
 pub fn process(args: Vec<String>) {
     feed_dir();
 
@@ -27,11 +29,11 @@ pub fn process(args: Vec<String>) {
         (_, 2) | (_, 3) => println!("{HELP}"),
 
         // CLI incomplete
-        ([.., "new"], _) => println!("New requires article name"),
-        ([.., "edit"], _) => println!("Edit requires article name"),
+        ([.., "new"], _) => println!("New requires article name."),
+        ([.., "edit"], _) => println!("Edit requires article name."),
         ([.., "publish"], _) => println!("{GEN_HELP}"),
-        ([.., "search"], _) => println!("Search requires article name"),
-        ([.., "rm"], _) => println!("Remove requires article name"),
+        ([.., "search"], _) => println!("Search requires article name."),
+        ([.., "rm"], _) => println!("Remove requires article name."),
 
         // CLI
         ([.., "new", a], _) => cli_new(a),
@@ -46,12 +48,14 @@ pub fn process(args: Vec<String>) {
     };
 }
 
+// Function to remove a document
 fn cli_remove(a: &str) {
     if let Err(error) = std::fs::remove_file(format!("feed/documents/{a}.md")) {
-        println!("error removing document\n{error}");
+        println!("Error removing document\n{error}");
     };
 }
 
+// Function to search for a document
 fn cli_search(a: &str) {
     let mut list = Vec::new();
 
@@ -70,13 +74,14 @@ const GEN_HELP: &str = "Adduce Feed Generate
 generate <name> <platform>
 run generate help for more info";
 
+// Function to publish a document
 fn cli_pub(document: &str) {
     // adduce feed generate article-name platform
 
     let conf = match std::fs::read("feed/conf.toml") {
         Ok(a) => String::from_utf8(a).unwrap(),
         Err(e) => {
-            println!("{e}\nuse feed conf generate to make a conf file");
+            println!("{e}\nUse `feed conf generate` to make a conf file.");
             return;
         }
     };
@@ -100,9 +105,10 @@ fn cli_pub(document: &str) {
     std::fs::write(format!("feed/export/{document}.html"), toml.to_html()).unwrap();
 }
 
+// Function to create a configuration file
 fn conf_make() {
     if std::fs::read("feed/conf.toml").is_ok() {
-        println!("this file already exists press enter if you wish to continue");
+        println!("This file already exists. Press enter if you wish to continue.");
 
         let mut response = String::new();
         std::io::stdin().read_line(&mut response).unwrap();
@@ -120,10 +126,11 @@ fn conf_make() {
     std::fs::write("feed/conf.toml", toml).unwrap();
 }
 
+// Function to interactively create a configuration file
 fn conf_wizard() -> Conf {
     let mut conf = Conf::new();
 
-    println!("Author's name? enter for None");
+    println!("Author's name? Press enter for none");
     let mut author = String::new();
     std::io::stdin().read_line(&mut author).unwrap();
     let author = author.trim();
@@ -138,7 +145,7 @@ fn conf_wizard() -> Conf {
 
     let mut iter = 0;
 
-    println!("stylesheet? pick one\n'enter' to continue");
+    println!("Stylesheet? Pick one\n'enter' to continue");
     for x in std::fs::read_dir("feed/styles").unwrap() {
         println!("{}", x.unwrap().file_name().to_string_lossy());
         iter += 1;
@@ -147,7 +154,7 @@ fn conf_wizard() -> Conf {
     if iter == 0 {
         let yeslist = ["y", "Y", "yes", "Yes", "YES"];
 
-        println!("no stylesheets found! would you like to download one from us?");
+        println!("Failed to find stylesheet. Would you like to download one from us?");
         let mut temp = String::new();
         std::io::stdin().read_line(&mut temp).unwrap();
         let temp = temp.trim();
@@ -165,7 +172,7 @@ fn conf_wizard() -> Conf {
                 .wait_with_output()
                 .unwrap();
 
-            println!("stylesheet? pick one\n'next' to continue");
+            println!("Stylesheet? Pick one\n'next' to continue");
 
             for x in std::fs::read_dir("feed/styles/").unwrap() {
                 println!("{}", x.unwrap().file_name().to_string_lossy());
@@ -235,11 +242,12 @@ fn conf_wizard() -> Conf {
     conf
 }
 
+// Function to edit a document
 fn cli_edit(a: &str) {
     let path = format!("feed/documents//{a}.md");
 
     if std::fs::read(&path).is_err() {
-        println!("No article with this name");
+        println!("No article with this name.");
         return;
     }
 
@@ -251,11 +259,12 @@ fn cli_edit(a: &str) {
         .unwrap();
 }
 
+// Function to create a new document
 fn cli_new(a: &str) {
     let path = format!("feed/documents/{a}.md");
 
     if std::fs::read(&path).is_ok() {
-        println!("Article already exists with this name");
+        println!("An article with this name already exists.");
         return;
     }
 
@@ -267,6 +276,7 @@ fn cli_new(a: &str) {
         .unwrap();
 }
 
+// Function to ensure necessary directories exist
 fn feed_dir() {
     for x in &[
         "feed",
@@ -276,10 +286,10 @@ fn feed_dir() {
         "feed/content",
     ] {
         if std::fs::read_dir(x).is_err() {
-            println!("could not find directory {x}, creating...");
+            println!("Could not find directory {x}, creating...");
 
             if let Err(error) = std::fs::create_dir(x) {
-                println!("could not create directory\n{error}");
+                println!("Could not create directory\n{error}");
             }
         };
     }

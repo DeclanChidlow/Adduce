@@ -1,5 +1,7 @@
+// Import necessary traits from the serde crate
 use serde::{Deserialize, Serialize};
 
+// Define a configuration struct with optional fields
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Conf {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -18,24 +20,29 @@ pub struct Conf {
     pub head: Option<Vec<String>>,
 }
 
+// Implement methods for the Conf struct
 impl Conf {
     pub fn new() -> Self {
         Default::default()
     }
 }
 
+// Define a social struct with optional fields
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
-
 pub struct Social {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub links: Option<Vec<String>>,
 }
+
+// Define a main content struct
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Main {
     pub block: Vec<Object>,
 }
+
+// Define an object struct with optional fields
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Object {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -50,7 +57,9 @@ pub struct Object {
     pub link: Option<String>,
 }
 
+// Define a div struct
 #[derive(Default, Debug, Clone)]
 pub struct Div {
+    // Vector of Objects for the div
     pub element: Vec<Object>,
 }
