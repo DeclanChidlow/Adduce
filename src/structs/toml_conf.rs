@@ -13,6 +13,10 @@ pub struct Conf {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub social: Option<Social>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub link: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub style: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub main: Option<Main>,

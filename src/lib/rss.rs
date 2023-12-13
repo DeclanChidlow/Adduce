@@ -14,6 +14,10 @@ Commands:
 	edit <file_name>	modify an existing article
 	publish <file_name>	build the file with Adduce";
 
+const GEN_HELP: &str = "Adduce Feed Generate
+generate <name> <platform>
+run generate help for more info";
+
 // Main function to process command line arguments
 pub fn process(args: Vec<String>) {
     feed_dir();
@@ -27,7 +31,7 @@ pub fn process(args: Vec<String>) {
     let args: Vec<&str> = newstr.split(' ').collect();
 
     match (args.as_slice(), args.len()) {
-        // exceptions
+        // Exceptions
         (_, 2) | (_, 3) => println!("{HELP}"),
 
         // CLI incomplete
@@ -45,7 +49,7 @@ pub fn process(args: Vec<String>) {
         ([.., "rm", a], _) => cli_remove(a),
         ([.., "conf", "generate"], _) => conf_make(),
 
-        // un accounted for
+        // Unaccounted for
         _ => panic!("no"),
     };
 }
@@ -68,10 +72,31 @@ fn generate_rss() {
         items.push(item);
     }
 
+    // Read the conf.toml file
+    let conf = match std::fs::read("feed/conf.toml") {
+        Ok(a) => String::from_utf8(a).unwrap(),
+        Err(e) => {
+            println!("{e}\nUse `feed conf generate` to make a conf file.");
+            return;
+        }
+    };
+
+    // Parse the conf.toml file into the Conf struct
+    let toml = toml::from_str::<Conf>(&conf).unwrap();
+
+    // Use the title, link, and description from the conf.toml file
+    let channel_title = toml.title.unwrap_or_else(|| "My RSS Feed".to_string());
+    let channel_link = toml
+        .link
+        .unwrap_or_else(|| "http://example.com".to_string());
+    let channel_description = toml
+        .description
+        .unwrap_or_else(|| "An RSS feed of my documents".to_string());
+
     let channel = ChannelBuilder::default()
-        .title("My RSS Feed".to_string())
-        .link("http://example.com".to_string())
-        .description("An RSS feed of my documents".to_string())
+        .title(channel_title)
+        .link(channel_link)
+        .description(channel_description)
         .items(items)
         .build();
 
@@ -99,10 +124,6 @@ fn cli_search(a: &str) {
         };
     }
 }
-
-const GEN_HELP: &str = "Adduce Feed Generate
-generate <name> <platform>
-run generate help for more info";
 
 // Function to publish a document
 fn cli_pub(document: &str) {
