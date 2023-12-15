@@ -101,6 +101,7 @@ fn generate_rss() {
         .title(channel_title)
         .link(channel_link)
         .description(channel_description)
+        .generator(Some("Adduce".to_string()))
         .items(items)
         .build();
 
