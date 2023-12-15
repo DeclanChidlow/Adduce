@@ -54,6 +54,10 @@ pub fn process(args: Vec<String>) {
     };
 }
 
+// TODO: Set item title to og:title in the header of the document
+// TODO: Set item description to contents of <article> tag in the document
+
+// Generate RSS feed based on contents of feed/documents/
 fn generate_rss() {
     let mut items = Vec::new();
 
