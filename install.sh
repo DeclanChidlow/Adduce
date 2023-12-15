@@ -2,7 +2,7 @@
 set -e
 
 echo "Building Adduce..."
-cargo build
+cargo build --release
 
 echo "Installing Adduce..."
 if [[ -f /bin/adduce ]]; then
