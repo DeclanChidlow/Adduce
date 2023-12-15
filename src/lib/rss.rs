@@ -100,7 +100,7 @@ fn generate_rss() {
         .items(items)
         .build();
 
-    fs::write("feed.rss", channel.to_string()).unwrap();
+    fs::write("feed/export/feed.rss", channel.to_string()).unwrap();
 }
 
 // Function to remove a document
