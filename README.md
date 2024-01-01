@@ -38,6 +38,7 @@ Adduce is currently not avaliable in any package managers but will likely be add
 
 ## Dependencies
 `wget`
+`cargo` is required to build.
 
 ## Documentation 
 The project's usage is [documented in the wiki](https://github.com/DeclanChidlow/Adduce/wiki/Adduce-Feed). If you want documentation for the code itself then you are best off checking the comments.
