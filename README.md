@@ -28,7 +28,7 @@ Originally conceived as a management tool for Adduce, Adduce Feed found its nich
 
 ## Installation
 ### Manual Install
-```bash
+```console
 $ git clone https://github.com/DeclanChidlow/Adduce
 $ cd Adduce
 # sh install.sh
