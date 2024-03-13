@@ -11,6 +11,7 @@
 </h1>
 Versatile static site generator written in Rust.
 </div>
+<br/>
 
 Adduce is split into two destinct parts. Standard, and Feed.
 
