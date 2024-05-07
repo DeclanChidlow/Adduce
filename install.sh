@@ -2,5 +2,5 @@
 set -e
 
 echo "Installing Adduce..."
-cargo install adduce
+cargo install --path .
 echo "Done!"
