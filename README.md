@@ -13,13 +13,13 @@ Versatile static site generator written in Rust.
 </div>
 <br/>
 
-Adduce is split into two destinct parts. Standard, and Feed.
+Adduce is split into two distinct parts. Standard, and Feed.
 
 ### Adduce Standard
-Adduce Standard is is used to generate individual pages. It's designed to be scripted in BASH and leverages a TOML file per page to grant absolute control over content and directory structure.
+Adduce Standard is used to generate individual pages. It's designed to be scripted in BASH and leverages a TOML file per page to grant absolute control over content and directory structure.
 
 ### Adduce Feed
-Originally conceived as a management tool for Adduce, Adduce Feed found its niche in the realm of blogging. In contrast to Adduce Standard, all pages are generated from a single TOML file, and configuration can be simplified through an intergrated setup wizard. Feed does sacrifice some filesystem control for user-friendliness and works well when used alongside Adduce Standard.
+Originally conceived as a management tool for Adduce, Adduce Feed found its niche in the realm of blogging. In contrast to Adduce Standard, all pages are generated from a single TOML file, and configuration can be simplified through an integrated setup wizard. Feed does sacrifice some filesystem control for user-friendliness and works well when used alongside Adduce Standard.
 
 ### Sites Using Adduce
 - [Adduce - https://adduce.vale.rocks](https://adduce.vale.rocks)
@@ -32,10 +32,8 @@ Originally conceived as a management tool for Adduce, Adduce Feed found its nich
 ```console
 $ git clone https://github.com/DeclanChidlow/Adduce
 $ cd Adduce
-# sh install.sh
+$ sh install.sh
 ```
-### Package Managers
-Adduce is currently not avaliable in any package managers but will likely be added to the Arch User Repository soon.
 
 ## Dependencies
 - `wget`
