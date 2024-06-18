@@ -7,7 +7,7 @@ use crate::lib::rfs::{import_conf, str_to_fs};
 pub struct Generate {
     pub config: Conf,
     pub input: Option<String>,
-    pub ouput: Option<String>,
+    pub output: Option<String>,
     pub filename: Option<String>,
 }
 
@@ -45,7 +45,7 @@ impl Generate {
 
     // Method to set the output directory
     pub fn output_dir(mut self, directory: &str) -> Self {
-        self.ouput = Some(String::from(directory));
+        self.output = Some(String::from(directory));
         self
     }
 
@@ -69,7 +69,7 @@ impl Generate {
 // Function to generate HTML from a Generate object
 pub fn generate_html(conf: Generate) {
     // Define the output directory
-    let output = conf.ouput.clone().unwrap_or_else(|| String::from("output"));
+    let output = conf.output.clone().unwrap_or_else(|| String::from("output"));
 
     // Create the path for the HTML file
     let html_dir = format!(

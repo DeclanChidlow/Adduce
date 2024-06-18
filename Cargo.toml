@@ -19,5 +19,5 @@ categories = [
 serde = { version = "1.0", features = ["derive"] }
 optional_struct = "0.4"
 toml = "0.8"
-pulldown-cmark = "0.10"
+pulldown-cmark = "0.11.0"
 rss = "2.0"

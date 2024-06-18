@@ -10,16 +10,16 @@ mod structs {
 }
 
 // Define a constant string for the help message
-const HELP: &str = "Adduce - static site generator, blog creator & markdown html tool
+const HELP: &str = "Adduce - Versatile static site generator written in Rust
 
 Usage: adduce [OPTIONS]
 
 Options:
 	-c, --config <path_to_configuration>
 	-n, --name <file_name.html>
-	-o, --ouput <html_destination>
+	-o, --output <html_destination>
 
-See `adduce feed` for Adduce Feed (blogger) usage.";
+See `adduce feed` for Adduce Feed usage.";
 
 // Import necessary traits from the serde crate
 pub use serde::{Deserialize, Serialize};
@@ -44,7 +44,7 @@ fn main() {
 
     // If the number of command line arguments is even, print an error message and return
     if args.len() % 2 == 0 {
-        println!("invalid args");
+        println!("Invalid arguments");
         return;
     }
 

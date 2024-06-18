@@ -17,11 +17,7 @@ pub struct Conf {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub style: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub main: Option<Main>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub head: Option<Vec<String>>,
 }
 
 // Implement methods for the Conf struct

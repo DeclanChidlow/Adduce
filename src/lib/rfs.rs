@@ -9,7 +9,7 @@ pub fn fs_to_str(directory: &str) -> String {
     let file = std::fs::read(directory)
         .unwrap_or_else(|_| panic!("File could not be found!\n{directory}"));
 
-    let file_str = from_utf8(&file).expect("Failed to deserilise! Is this possible?");
+    let file_str = from_utf8(&file).expect("Failed to deserialize! Is this possible?");
 
     String::from(file_str)
 }

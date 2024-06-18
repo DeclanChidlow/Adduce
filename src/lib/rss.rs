@@ -77,7 +77,7 @@ fn generate_rss() {
     }
 
     // Read the conf.toml file
-    let conf = match std::fs::read("feed/conf.toml") {
+    let conf = match fs::read("feed/conf.toml") {
         Ok(a) => String::from_utf8(a).unwrap(),
         Err(e) => {
             println!("{e}\nUse `feed conf generate` to make a conf file.");
@@ -92,7 +92,7 @@ fn generate_rss() {
     let channel_title = toml.title.unwrap_or_else(|| "My RSS Feed".to_string());
     let channel_link = toml
         .link
-        .unwrap_or_else(|| "http://example.com".to_string());
+        .unwrap_or_else(|| "https://example.com".to_string());
     let channel_description = toml
         .description
         .unwrap_or_else(|| "An RSS feed of my documents".to_string());
@@ -110,7 +110,7 @@ fn generate_rss() {
 
 // Function to remove a document
 fn cli_remove(a: &str) {
-    if let Err(error) = std::fs::remove_file(format!("feed/documents/{a}.md")) {
+    if let Err(error) = fs::remove_file(format!("feed/documents/{a}.md")) {
         println!("Error removing document\n{error}");
     };
 }
@@ -119,7 +119,7 @@ fn cli_remove(a: &str) {
 fn cli_search(a: &str) {
     let mut list = Vec::new();
 
-    for x in std::fs::read_dir("feed/documents/").unwrap() {
+    for x in fs::read_dir("feed/documents/").unwrap() {
         list.push(x.unwrap().file_name().into_string().unwrap_or_default());
     }
 
@@ -134,7 +134,7 @@ fn cli_search(a: &str) {
 fn cli_pub(document: &str) {
     // adduce feed generate article-name platform
 
-    let conf = match std::fs::read("feed/conf.toml") {
+    let conf = match fs::read("feed/conf.toml") {
         Ok(a) => String::from_utf8(a).unwrap(),
         Err(e) => {
             println!("{e}\nUse `feed conf generate` to make a conf file.");
@@ -158,14 +158,14 @@ fn cli_pub(document: &str) {
         toml.main.as_mut().unwrap().block.push(text);
     };
 
-    std::fs::write(format!("feed/export/{document}.html"), toml.to_html()).unwrap();
+    fs::write(format!("feed/export/{document}.html"), toml.to_html()).unwrap();
 
     generate_rss();
 }
 
 // Function to create a configuration file
 fn conf_make() {
-    if std::fs::read("feed/conf.toml").is_ok() {
+    if fs::read("feed/conf.toml").is_ok() {
         println!("This file already exists. Press enter if you wish to continue.");
 
         let mut response = String::new();
@@ -181,7 +181,7 @@ fn conf_make() {
 
     let toml = toml::to_string_pretty(&generate).unwrap();
 
-    std::fs::write("feed/conf.toml", toml).unwrap();
+    fs::write("feed/conf.toml", toml).unwrap();
 }
 
 // Function to interactively create a configuration file
@@ -197,72 +197,8 @@ fn conf_wizard() -> Conf {
         conf.author = Some(String::from(author));
     };
 
-    // STYLESHEETS
-
-    let mut style = Vec::new();
-
-    let mut iter = 0;
-
-    println!("Stylesheet? Pick one\n'enter' to continue");
-    for x in std::fs::read_dir("feed/styles").unwrap() {
-        println!("{}", x.unwrap().file_name().to_string_lossy());
-        iter += 1;
-    }
-
-    if iter == 0 {
-        let yeslist = ["y", "Y", "yes", "Yes", "YES"];
-
-        println!("Failed to find stylesheet. Would you like to download one from us?");
-        let mut temp = String::new();
-        std::io::stdin().read_line(&mut temp).unwrap();
-        let temp = temp.trim();
-
-        if yeslist.contains(&temp) {
-            std::process::Command::new("wget")
-                .args(vec![
-                    "https://raw.githubusercontent.com/toastxc/Adduce/main/config/style.css",
-                    "-S",
-                    "-P",
-                    "feed/styles/",
-                ])
-                .spawn()
-                .unwrap()
-                .wait_with_output()
-                .unwrap();
-
-            println!("Stylesheet? Pick one\n'next' to continue");
-
-            for x in std::fs::read_dir("feed/styles/").unwrap() {
-                println!("{}", x.unwrap().file_name().to_string_lossy());
-                iter += 1;
-            }
-        }
-    };
-
-    loop {
-        let mut temp = String::new();
-        std::io::stdin().read_line(&mut temp).unwrap();
-        temp = temp.trim().to_string();
-
-        let dir = format!("feed/styles/{temp}");
-
-        if dir == *"feed/styles/" {
-            break;
-        };
-
-        match std::fs::File::open(&dir) {
-            Ok(_) => style.push(dir),
-            Err(e) => println!("{e}"),
-        };
-    }
-
-    conf.style = match style.is_empty() {
-        true => None,
-        false => Some(style),
-    };
-
     println!("pre-page content?");
-    for x in std::fs::read_dir("feed/content").unwrap() {
+    for x in fs::read_dir("feed/content").unwrap() {
         println!("{}", x.unwrap().file_name().to_string_lossy());
     }
 
@@ -287,7 +223,7 @@ fn conf_wizard() -> Conf {
             ..Default::default()
         };
 
-        match std::fs::File::open(&dir) {
+        match fs::File::open(&dir) {
             Ok(_) => before_page.push(temp_object),
             Err(e) => println!("{e}"),
         };
@@ -304,7 +240,7 @@ fn conf_wizard() -> Conf {
 fn cli_edit(a: &str) {
     let path = format!("feed/documents//{a}.md");
 
-    if std::fs::read(&path).is_err() {
+    if fs::read(&path).is_err() {
         println!("No article with this name.");
         return;
     }
@@ -321,7 +257,7 @@ fn cli_edit(a: &str) {
 fn cli_new(a: &str) {
     let path = format!("feed/documents/{a}.md");
 
-    if std::fs::read(&path).is_ok() {
+    if fs::read(&path).is_ok() {
         println!("An article with this name already exists.");
         return;
     }
@@ -343,10 +279,10 @@ fn feed_dir() {
         "feed/styles",
         "feed/content",
     ] {
-        if std::fs::read_dir(x).is_err() {
+        if fs::read_dir(x).is_err() {
             println!("Could not find directory {x}, creating...");
 
-            if let Err(error) = std::fs::create_dir(x) {
+            if let Err(error) = fs::create_dir(x) {
                 println!("Could not create directory\n{error}");
             }
         };

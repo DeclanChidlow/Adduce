@@ -12,28 +12,8 @@ impl Conf {
             divs += &compile_html(x);
         }
 
-        // Initialize a new String to hold the CSS stylesheets
-        let mut style_conf = String::new();
-        // If the Conf object has a style field, read each file
-        // in the field and add its content to the stylesheets
-        if let Some(styles) = self.clone().style {
-            for x in styles {
-                style_conf += &fs_to_str(&x);
-            }
-        }
-
-        // Initialize a new String to hold the head configuration
-        let mut head_conf = String::new();
-        // If the Conf object has a head field, read each file
-        // in the field and add its content to the head configuration
-        if let Some(head) = self.clone().head {
-            for x in head {
-                head_conf += &fs_to_str(&x);
-            }
-        }
-
         // Return the final HTML document
-        format!("<!DOCTYPE html>\n<head>\n<style>\n{style_conf}\n</style>\n{head_conf}\n</head>\n<body>\n<div class=\"page\">\n{divs}\n</div>\n</body>")
+        format!("{divs}")
     }
 }
 
@@ -69,7 +49,7 @@ fn compile_html(conf: &Object) -> String {
         _ => format!("\n<{style}{id}>{pt_text}\n</{style}>"),
     };
 
-    // optional restructing
+    // optional restructuring
 
     // If the Object has a link, wrap the HTML in an anchor tag
     if let Some(link) = conf.link {
