@@ -66,10 +66,15 @@ fn md_two(text: &str) -> String {
         &mut html_output,
         Parser::new_ext(
             text,
-            Options::ENABLE_HEADING_ATTRIBUTES
+            Options::ENABLE_TABLES
+                | Options::ENABLE_FOOTNOTES
                 | Options::ENABLE_STRIKETHROUGH
-                | Options::ENABLE_TABLES
-                | Options::ENABLE_TASKLISTS,
+                | Options::ENABLE_TASKLISTS
+                | Options::ENABLE_SMART_PUNCTUATION
+                | Options::ENABLE_HEADING_ATTRIBUTES
+                | Options::ENABLE_YAML_STYLE_METADATA_BLOCKS
+                | Options::ENABLE_MATH
+                | Options::ENABLE_GFM,
         ),
     );
     html_output
