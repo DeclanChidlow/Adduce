@@ -9,5 +9,5 @@ if [[ -f /bin/adduce ]]; then
     sudo rm /bin/adduce
 fi
 
-sudo cp target/release/adduce /bin/
+doas cp target/release/adduce ~/.local/bin/
 echo "Completed!"
