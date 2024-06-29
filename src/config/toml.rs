@@ -1,4 +1,3 @@
-// Import necessary traits from the serde crate
 use serde::{Deserialize, Serialize};
 
 // Define a configuration struct with optional fields
@@ -55,11 +54,4 @@ pub struct Object {
     pub id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub link: Option<String>,
-}
-
-// Define a div struct
-#[derive(Default, Debug, Clone)]
-pub struct Div {
-    // Vector of Objects for the div
-    pub element: Vec<Object>,
 }

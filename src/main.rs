@@ -1,76 +1,85 @@
-// Import necessary modules
 mod lib {
-    pub mod html2;
-    pub mod rfs;
-    pub mod rss;
-}
-mod structs {
-    pub mod html_conf;
-    pub mod toml_conf;
+    pub mod feed;
+    pub mod filesystem;
+    pub mod markdown;
 }
 
-// Define a constant string for the help message
-const HELP: &str = "Adduce - Versatile static site generator written in Rust
+mod config {
+    pub mod html;
+    pub mod toml;
+}
+
+const HELP: &str = r#"
+Adduce - Versatile static site generator written in Rust
 
 Usage: adduce [OPTIONS]
 
 Options:
-	-c, --config <path_to_configuration>
-	-n, --name <file_name.html>
-	-o, --output <html_destination>
+    -c, --config <path_to_configuration>
+    -n, --name <file_name.html>
+    -o, --output <html_destination>
 
-See `adduce feed` for Adduce Feed usage.";
+See `adduce feed` for Adduce Feed usage.
+"#;
 
-// Import necessary traits from the serde crate
 pub use serde::{Deserialize, Serialize};
-use structs::html_conf::Generate;
+use config::html::Generate;
+use std::env;
 
-// Main function
 fn main() {
-    // Get the command line arguments
-    let args = args();
+    let args: Vec<String> = env::args().skip(1).collect();
 
-    // If there are no command line arguments, print the help message and return
-    if args.len() < 2 {
+    if args.is_empty() {
         println!("{HELP}");
-        return;
-    };
-
-    // If the command line arguments contain "feed", process them with the RSS module and return
-    if args.contains(&String::from("feed")) {
-        lib::rss::process(args);
         return;
     }
 
-    // If the number of command line arguments is even, print an error message and return
-    if args.len() % 2 == 0 {
+    // If the command line arguments contain "feed", process them with the feed module and return
+    if args.contains(&String::from("feed")) {
+        lib::feed::process(args);
+        return;
+    }
+
+    if args.len() % 2 != 0 {
         println!("Invalid arguments");
         return;
     }
 
-    // Initialize a new Generate object
     let mut genconf = Generate::new();
+    let mut iter = args.iter();
 
-    // Iterate over the command line arguments and update the Generate object based on them
-    for x in 0..args.len() {
-        genconf = match args[x].as_str() {
-            "--config" | "-c" => genconf.conf_str(&format!("{}/conf.toml", &args[x + 1])),
-            "--output" | "-o" => genconf.output_dir(&args[x + 1]),
-            "--name" | "-n" => genconf.filename(&args[x + 1]),
-            _ => Generate::void(genconf),
+    while let Some(arg) = iter.next() {
+        genconf = match arg.as_str() {
+            "--config" | "-c" => {
+                if let Some(path) = iter.next() {
+                    genconf.conf_str(&format!("{}/conf.toml", path))
+                } else {
+                    eprintln!("Error: --config requires a path");
+                    return;
+                }
+            }
+            "--output" | "-o" => {
+                if let Some(path) = iter.next() {
+                    genconf.output_dir(path)
+                } else {
+                    eprintln!("Error: --output requires a path");
+                    return;
+                }
+            }
+            "--name" | "-n" => {
+                if let Some(name) = iter.next() {
+                    genconf.filename(name)
+                } else {
+                    eprintln!("Error: --name requires a file name");
+                    return;
+                }
+            }
+            _ => {
+                eprintln!("Unknown argument: {}", arg);
+                return;
+            }
         };
     }
 
-    // Generate the final output from the Generate object
     Generate::from_conf(genconf);
-}
-
-// Function to get the command line arguments
-fn args() -> Vec<String> {
-    let mut vec = Vec::new();
-    for x in std::env::args() {
-        vec.push(x);
-    }
-
-    vec
 }
