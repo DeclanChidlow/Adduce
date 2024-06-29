@@ -19,13 +19,6 @@ pub struct Conf {
     pub main: Option<Main>,
 }
 
-// Implement methods for the Conf struct
-impl Conf {
-    pub fn new() -> Self {
-        Default::default()
-    }
-}
-
 // Define a social struct with optional fields
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Social {
