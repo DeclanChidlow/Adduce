@@ -12,8 +12,9 @@ Commands:
     create <file_name>      create new document
     remove <file_name>      delete a document
     edit <file_name>        modify an existing document
-    generate <file_name>    generate HTML from document
+    export <file_name>      generate HTML from document
     search <query>          search your documents
+    rss                     generate RSS feed
 
 See `adduce` for Adduce Standard usage.
 "#;
@@ -29,7 +30,8 @@ pub fn process(args: Vec<String>) {
 
     match command {
         "establish" => cli_establish(),
-        "create" | "remove" | "edit" | "generate" | "search" => {
+        "rss" => cli_rss(),
+        "create" | "remove" | "edit" | "export" | "search" => {
             if args.len() < 3 {
                 println!("{HELP}");
                 return;
@@ -39,7 +41,7 @@ pub fn process(args: Vec<String>) {
                 "create" => cli_create(argument),
                 "remove" => cli_remove(argument),
                 "edit" => cli_edit(argument),
-                "generate" => cli_generate(argument),
+                "export" => cli_export(argument),
                 "search" => cli_search(argument),
                 _ => println!("{HELP}"),
             }
@@ -101,8 +103,6 @@ fn cli_remove(filename: &str) {
     } else {
         println!("Deleted exported document '{filename}'.");
     }
-    
-    generate_rss();
 }
 
 // Edit a requested document
@@ -125,7 +125,7 @@ fn cli_edit(filename: &str) {
 }
 
 // Generate a HTML version of the input document
-fn cli_generate(document: &str) {
+fn cli_export(document: &str) {
     let md_file_path = format!("feed/documents/{document}.md");
     if fs::metadata(&md_file_path).is_err() {
         println!("Input file '{document}' does not exist. Please create it first.");
@@ -154,13 +154,11 @@ fn cli_generate(document: &str) {
     }
 
     if let Err(err) = fs::write(format!("feed/export/{document}.html"), toml.to_html()) {
-        eprintln!("Failed to generate {document}: {err}.");
+        eprintln!("Failed to export {document}: {err}.");
         return;
     }
 
-    generate_rss();
-
-    println!("Successfully generated {document}.");
+    println!("Successfully exported {document}.");
 }
 
 // Search documents
@@ -187,7 +185,7 @@ fn cli_search(keyword: &str) {
 // TODO: Set item description to contents of <article> tag in the document
 
 // Generate an RSS feed
-fn generate_rss() {
+fn cli_rss() {
     let mut items = Vec::new();
 
     for entry in fs::read_dir("feed/documents/").unwrap() {
@@ -203,18 +201,42 @@ fn generate_rss() {
         items.push(item);
     }
 
-    let conf = match fs::read_to_string("feed/conf.toml") {
-        Ok(content) => toml::from_str::<Conf>(&content).unwrap(),
+    let conf_content = match fs::read_to_string("feed/conf.toml") {
+        Ok(content) => content,
         Err(e) => {
-            println!("{e}\nNo configuration file found.");
+            println!("Error reading configuration file: {e}\nNo configuration file found.");
             return;
         }
     };
 
-    // Use the title, link, and description from the conf.toml file
-    let channel_title = conf.title.unwrap_or_else(|| "My RSS Feed".to_string());
-    let channel_link = conf.link.unwrap_or_else(|| "https://example.com".to_string());
-    let channel_description = conf.description.unwrap_or_else(|| "An RSS feed of my documents".to_string());
+    let conf: Conf = match toml::from_str(&conf_content) {
+        Ok(conf) => conf,
+        Err(e) => {
+            println!("Error parsing configuration file: {e}");
+            return;
+        }
+    };
+
+    if conf.title.is_none() || conf.link.is_none() || conf.description.is_none() {
+        let mut missing_fields = Vec::new();
+
+        if conf.title.is_none() {
+            missing_fields.push("title");
+        }
+        if conf.link.is_none() {
+            missing_fields.push("link");
+        }
+        if conf.description.is_none() {
+            missing_fields.push("description");
+        }
+
+        println!("RSS feed not generated. Missing required fields: {}.", missing_fields.join(", "));
+        return;
+    }
+
+    let channel_title = conf.title.unwrap();
+    let channel_link = conf.link.unwrap();
+    let channel_description = conf.description.unwrap();
 
     let channel = ChannelBuilder::default()
         .title(channel_title)
@@ -224,6 +246,9 @@ fn generate_rss() {
         .items(items)
         .build();
 
-    fs::write("feed/export/feed.rss", channel.to_string()).expect("Failed to write RSS feed.");
+    if let Err(e) = fs::write("feed/export/feed.xml", channel.to_string()) {
+        eprintln!("Failed to write RSS feed: {e}");
+    } else {
+        println!("RSS feed generated successfully.");
+    }
 }
-
