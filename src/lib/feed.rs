@@ -53,9 +53,8 @@ pub fn process(args: Vec<String>) {
 // Create the required directory structure
 fn cli_establish() {
     for dir in &[
-        "feed",
-        "feed/documents",
-        "feed/export",
+        "documents",
+        "export",
     ] {
         if fs::read_dir(dir).is_err() {
             println!("Creating {dir}...");
@@ -66,7 +65,7 @@ fn cli_establish() {
 
 // Create a new document
 fn cli_create(filename: &str) {
-    let folder_path = "feed/documents";
+    let folder_path = "documents";
     let file_path = format!("{folder_path}/{filename}.md");
 
     if !fs::metadata(folder_path).is_ok() {
@@ -90,14 +89,14 @@ fn cli_create(filename: &str) {
 
 // Remove a requested document
 fn cli_remove(filename: &str) {
-    let md_file_path = format!("feed/documents/{filename}.md");
+    let md_file_path = format!("documents/{filename}.md");
     if let Err(error) = fs::remove_file(&md_file_path) {
         println!("Error removing source document {filename}: {error}.");
     } else {
         println!("Deleted source document '{filename}'.");
     }
 
-    let html_file_path = format!("feed/export/{filename}.html");
+    let html_file_path = format!("export/{filename}.html");
     if let Err(error) = fs::remove_file(&html_file_path) {
         println!("Error removing exported document {filename}: {error}.");
     } else {
@@ -107,7 +106,7 @@ fn cli_remove(filename: &str) {
 
 // Edit a requested document
 fn cli_edit(filename: &str) {
-    let file_path = format!("feed/documents/{filename}.md");
+    let file_path = format!("documents/{filename}.md");
 
     if fs::read(&file_path).is_err() {
         println!("No documents with that name.");
@@ -126,13 +125,13 @@ fn cli_edit(filename: &str) {
 
 // Generate a HTML version of the input document
 fn cli_export(document: &str) {
-    let md_file_path = format!("feed/documents/{document}.md");
+    let md_file_path = format!("documents/{document}.md");
     if fs::metadata(&md_file_path).is_err() {
         println!("Input file '{document}' does not exist. Please create it first.");
         return;
     }
 
-    let conf = match fs::read_to_string("feed/conf.toml") {
+    let conf = match fs::read_to_string("conf.toml") {
         Ok(content) => toml::from_str::<Conf>(&content).unwrap(),
         Err(e) => {
             println!("{e}\nYou must manually create a conf.toml file for your feed.");
@@ -141,7 +140,7 @@ fn cli_export(document: &str) {
     };
 
     let text = Object {
-        content_file: Some(format!("feed/documents/{document}.md")),
+        content_file: Some(format!("documents/{document}.md")),
         format: Some(String::from("md")),
         ..Default::default()
     };
@@ -153,7 +152,7 @@ fn cli_export(document: &str) {
         toml.main.as_mut().unwrap().block.push(text);
     }
 
-    if let Err(err) = fs::write(format!("feed/export/{document}.html"), toml.to_html()) {
+    if let Err(err) = fs::write(format!("export/{document}.html"), toml.to_html()) {
         eprintln!("Failed to export {document}: {err}.");
         return;
     }
@@ -163,7 +162,7 @@ fn cli_export(document: &str) {
 
 // Search documents
 fn cli_search(keyword: &str) {
-    let entries = fs::read_dir("feed/documents/")
+    let entries = fs::read_dir("documents/")
         .expect("Failed to read documents directory.")
         .filter_map(|entry| entry.ok().map(|e| e.file_name().into_string().unwrap_or_default()));
 
@@ -188,7 +187,7 @@ fn cli_search(keyword: &str) {
 fn cli_rss() {
     let mut items = Vec::new();
 
-    for entry in fs::read_dir("feed/documents/").unwrap() {
+    for entry in fs::read_dir("export/").unwrap() {
         let entry = entry.unwrap();
         let path = entry.path();
         let content = fs::read_to_string(&path).unwrap_or_default();
@@ -201,7 +200,7 @@ fn cli_rss() {
         items.push(item);
     }
 
-    let conf_content = match fs::read_to_string("feed/conf.toml") {
+    let conf_content = match fs::read_to_string("conf.toml") {
         Ok(content) => content,
         Err(e) => {
             println!("Error reading configuration file: {e}\nNo configuration file found.");
@@ -251,7 +250,7 @@ fn cli_rss() {
         .items(items)
         .build();
 
-    if let Err(e) = fs::write("feed/export/feed.xml", channel.to_string()) {
+    if let Err(e) = fs::write("export/feed.xml", channel.to_string()) {
         eprintln!("Failed to write RSS feed: {e}");
     } else {
         println!("RSS feed generated successfully.");
