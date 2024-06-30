@@ -141,8 +141,8 @@ fn cli_generate(document: &str) {
     };
 
     let text = Object {
-        from_str: Some(format!("feed/documents/{document}.md")),
-        style: Some(String::from("md")),
+        content_file: Some(format!("feed/documents/{document}.md")),
+        format: Some(String::from("md")),
         ..Default::default()
     };
 
