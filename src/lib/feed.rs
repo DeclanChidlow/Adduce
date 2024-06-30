@@ -192,6 +192,10 @@ fn cli_rss() {
         let path = entry.path();
         let content = fs::read_to_string(&path).unwrap_or_default();
 
+        if path.file_name().unwrap() == "feed.xml" {
+            continue;
+        }
+
         let item = ItemBuilder::default()
             .title(Some(path.file_name().unwrap().to_string_lossy().to_string()))
             .description(Some(content))
