@@ -234,14 +234,19 @@ fn cli_rss() {
         return;
     }
 
-    let channel_title = conf.title.unwrap();
-    let channel_link = conf.link.unwrap();
-    let channel_description = conf.description.unwrap();
-
     let channel = ChannelBuilder::default()
-        .title(channel_title)
-        .link(channel_link)
-        .description(channel_description)
+        .title(conf.title.unwrap())
+        .link(conf.link.unwrap())
+        .description(conf.description.unwrap())
+        .language(conf.language)
+        .copyright(conf.copyright)
+        .managing_editor(conf.managing_editor)
+        .webmaster(conf.webmaster)
+        // TODO: Categories
+        .ttl(conf.ttl)
+        // TODO: Image
+        // TODO: Skip Hours
+        // TODO: Skip Days
         .generator(Some("Adduce".to_string()))
         .items(items)
         .build();
