@@ -33,6 +33,7 @@ fn compile_html(obj: &Object) -> String {
 
     let html = match format.as_str() {
         "br" => "<br/>\n".to_string(),
+        "hr" => "<hr/>\n".to_string(),
         "html" => format!("{}\n", formatted_text),
         "md" => format!("{}\n", convert_markdown_to_html(&content)),
         _ => format!("<{format}{id_attribute}>{formatted_text}</{format}>\n"),
