@@ -5,15 +5,8 @@ use std::fs;
 #[derive(Default, Debug, Clone)]
 pub struct Generate {
     pub config: Conf,
-    pub input: Option<String>,
     pub output: Option<String>,
     pub filename: Option<String>,
-}
-
-#[derive(Default, Debug, Clone)]
-pub enum GenMethod {
-    #[default]
-    Default,
 }
 
 impl Generate {
@@ -25,15 +18,8 @@ impl Generate {
     pub fn conf_str(mut self, config: &str) -> Self {
         match import_conf(config) {
             Ok(conf) => self.config = conf,
-            Err(e) => eprintln!("Error importing configuration: {}", e),
+            Err(e) => eprintln!("Error importing configuration: {e}"),
         }
-        self
-    }
-
-    // Method to set the input directory
-    #[allow(dead_code)]
-    pub fn input_dir(mut self, directory: &str) -> Self {
-        self.input = Some(directory.to_string());
         self
     }
 
@@ -58,12 +44,12 @@ impl Generate {
 pub fn generate_html(conf: Generate) {
     let output = conf.output.clone().unwrap_or_else(|| "output".to_string());
     let html_filename = conf.filename.clone().unwrap_or_else(|| "index.html".to_string());
-    let html_dir = format!("{}/{}", output, html_filename);
+    let html_dir = format!("{output}/{html_filename}");
 
     // If the HTML file already exists, remove it
     if fs::File::open(&html_dir).is_ok() {
         if let Err(e) = fs::remove_file(&html_dir) {
-            eprintln!("Error removing existing file {}: {}", html_dir, e);
+            eprintln!("Error removing existing file {html_dir}: {e}");
             return;
         }
     }
@@ -71,14 +57,14 @@ pub fn generate_html(conf: Generate) {
     // If the output directory does not exist, create it
     if fs::read_dir(&output).is_err() {
         if let Err(e) = fs::create_dir(&output) {
-            eprintln!("Error creating directory {}: {}", output, e);
+            eprintln!("Error creating directory {output}: {e}");
             return;
         }
     }
 
     // Write the HTML to the file
     if let Err(e) = fs::File::create(&html_dir) {
-        eprintln!("Error creating file {}: {}", html_dir, e);
+        eprintln!("Error creating file {html_dir}: {e}");
         return;
     }
 
