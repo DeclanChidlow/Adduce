@@ -1,7 +1,7 @@
 mod lib {
     pub mod feed;
     pub mod filesystem;
-    pub mod markdown;
+    pub mod parse;
 }
 
 mod config {
