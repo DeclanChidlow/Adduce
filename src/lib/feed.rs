@@ -1,6 +1,8 @@
-use rss::{ChannelBuilder, ItemBuilder};
+use atom_syndication::{FeedBuilder, EntryBuilder, ContentBuilder, Text, GeneratorBuilder};
 use std::{fs, env, process::Command};
 use crate::config::toml::{Conf, Object, Main};
+use toml::de::Error as TomlError;
+use chrono::Utc;
 
 const HELP: &str = r#"
 Adduce Feed - create blogs or other simple documents.
@@ -14,7 +16,7 @@ Commands:
     edit <file_name>        modify an existing document
     export <file_name>      generate HTML from document
     search <query>          search your documents
-    rss                     generate RSS feed
+    atom                    generate Atom feed
 
 See `adduce` for Adduce Standard usage.
 "#;
@@ -30,7 +32,7 @@ pub fn process(args: Vec<String>) {
 
     match command {
         "establish" => cli_establish(),
-        "rss" => cli_rss(),
+        "atom" => cli_atom(),
         "create" | "remove" | "edit" | "export" | "search" => {
             if args.len() < 3 {
                 println!("{HELP}");
@@ -180,12 +182,11 @@ fn cli_search(keyword: &str) {
     }
 }
 
-// TODO: Set item title to og:title in the header of the document
-// TODO: Set item description to contents of <article> tag in the document
+// TODO: Allow front matter in documents so it can be referenced here:
 
-// Generate an RSS feed
-fn cli_rss() {
-    let mut items = Vec::new();
+// Generate an Atom feed
+fn cli_atom() {
+    let mut entries = Vec::new();
 
     for entry in fs::read_dir("export/").unwrap() {
         let entry = entry.unwrap();
@@ -196,12 +197,12 @@ fn cli_rss() {
             continue;
         }
 
-        let item = ItemBuilder::default()
-            .title(Some(path.file_name().unwrap().to_string_lossy().to_string()))
-            .description(Some(content))
+        let entry = EntryBuilder::default()
+            .title(Text::plain(path.file_name().unwrap().to_string_lossy().to_string()))
+            .content(ContentBuilder::default().value(content).build())
             .build();
 
-        items.push(item);
+        entries.push(entry);
     }
 
     let conf_content = match fs::read_to_string("conf.toml") {
@@ -212,7 +213,8 @@ fn cli_rss() {
         }
     };
 
-    let conf: Conf = match toml::from_str(&conf_content) {
+    let conf: Result<Conf, TomlError> = toml::from_str(&conf_content);
+    let conf = match conf {
         Ok(conf) => conf,
         Err(e) => {
             println!("Error parsing configuration file: {e}");
@@ -220,43 +222,46 @@ fn cli_rss() {
         }
     };
 
-    if conf.title.is_none() || conf.link.is_none() || conf.description.is_none() {
+    if conf.title.is_none() || conf.id.is_none() {
         let mut missing_fields = Vec::new();
 
         if conf.title.is_none() {
             missing_fields.push("title");
         }
-        if conf.link.is_none() {
-            missing_fields.push("link");
-        }
-        if conf.description.is_none() {
-            missing_fields.push("description");
+        if conf.id.is_none() {
+            missing_fields.push("id");
         }
 
-        println!("RSS feed not generated. Missing required fields: {}.", missing_fields.join(", "));
+        println!("Atom feed not generated. Missing required fields: {}.", missing_fields.join(", "));
         return;
     }
 
-    let channel = ChannelBuilder::default()
-        .title(conf.title.unwrap())
-        .link(conf.link.unwrap())
-        .description(conf.description.unwrap())
-        .language(conf.language)
-        .copyright(conf.copyright)
-        .managing_editor(conf.managing_editor)
-        .webmaster(conf.webmaster)
-        // TODO: Categories
-        .ttl(conf.ttl)
-        // TODO: Image
-        // TODO: Skip Hours
-        // TODO: Skip Days
-        .generator(Some("Adduce".to_string()))
-        .items(items)
+    let generator = GeneratorBuilder::default()
+        .value("Adduce".to_string())
+        .uri("http://adduce.vale.rocks".to_string())
+        .version(env!("CARGO_PKG_VERSION").to_string())
         .build();
 
-    if let Err(e) = fs::write("export/feed.xml", channel.to_string()) {
-        eprintln!("Failed to write RSS feed: {e}");
+    let feed = FeedBuilder::default()
+        .title(Text::plain(conf.title.unwrap()))
+        .id(conf.id.as_ref().unwrap())
+        .updated(Utc::now())
+        // TODO: Authors
+        // TODO: Categories
+        .generator(generator)
+        .icon(conf.icon)
+        // TODO: Links
+        .logo(conf.logo)
+        .rights(conf.rights.map(Text::plain))
+        .entries(entries)
+        .subtitle(conf.subtitle.map(Text::plain))
+        .base(conf.base)
+        .lang(conf.lang)
+        .build();
+
+    if let Err(e) = fs::write("export/feed.xml", feed.to_string()) {
+        eprintln!("Failed to write Atom feed: {e}");
     } else {
-        println!("RSS feed generated successfully.");
+        println!("Atom feed generated successfully.");
     }
 }

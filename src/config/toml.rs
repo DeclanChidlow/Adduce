@@ -19,33 +19,25 @@ pub struct Object {
     pub id: Option<String>,
 }
 
-// RSS specific
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Conf {
+    // Atom specific
     #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub link: Option<String>,
+    pub id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
+    pub icon: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub language: Option<String>,
+    pub logo: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub copyright: Option<String>,
+    pub rights: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub managing_editor: Option<String>,
+    pub subtitle: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub webmaster: Option<String>,
+    pub base: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub categories: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ttl: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub image: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub skip_hours: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub skip_days: Option<String>,
+    pub lang: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub main: Option<Main>,
