@@ -5,20 +5,20 @@ use toml::de::Error as TomlError;
 use chrono::Utc;
 
 const HELP: &str = r#"
-Adduce Feed - create blogs or other simple documents.
+Adduce Feed - create pages with shared configuration.
 
 Usage: adduce feed [COMMAND] <argument>
 
 Commands:
-    establish               create feed structure
-    create <file_name>      create new document
-    remove <file_name>      delete a document
-    edit <file_name>        modify an existing document
-    export <file_name>      generate HTML from document
-    search <query>          search your documents
-    atom                    generate Atom feed
+    establish                   create directory structure
+    create <document_name>      create new document
+    remove <document_name>      delete a document
+    edit <document_name>        modify an existing document
+    export <document_name>      generate HTML from document
+    search <query>              search your documents
+    atom                        generate Atom feed
 
-See `adduce` for Adduce Standard usage.
+See `adduce` for creating individual pages.
 "#;
 
 pub fn process(args: Vec<String>) {
