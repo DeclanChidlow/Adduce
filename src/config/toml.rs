@@ -17,6 +17,8 @@ pub struct Object {
     pub content_file: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_document: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]

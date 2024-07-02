@@ -3,6 +3,7 @@ use std::{fs, env, process::Command};
 use crate::config::toml::{Conf, Object, Main};
 use toml::de::Error as TomlError;
 use chrono::Utc;
+use crate::lib::filesystem::fs_to_str;
 
 const HELP: &str = r#"
 Adduce Feed - create pages with shared configuration.
@@ -141,17 +142,28 @@ fn cli_export(document: &str) {
         }
     };
 
-    let text = Object {
-        content_file: Some(format!("documents/{document}.md")),
-        format: Some(String::from("md")),
+    let content = fs_to_str(&md_file_path);
+    let md_object = Object {
+        format: Some("md".to_string()),
+        content: Some(content),
         ..Default::default()
     };
 
     let mut toml = conf;
-    if toml.main.is_none() {
-        toml.main = Some(Main { block: vec![text] });
+    if let Some(main) = toml.main.as_mut() {
+        let position = main.block.iter().position(|obj| {
+            obj.format.as_deref() == Some("document")
+        });
+
+        if let Some(pos) = position {
+            main.block[pos] = md_object;
+        } else {
+            main.block.push(md_object);
+        }
     } else {
-        toml.main.as_mut().unwrap().block.push(text);
+        toml.main = Some(Main {
+            block: vec![md_object],
+        });
     }
 
     if let Err(err) = fs::write(format!("export/{document}.html"), toml.to_html()) {
