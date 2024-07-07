@@ -9,35 +9,53 @@
   [![Contributors](https://img.shields.io/github/contributors/DeclanChidlow/Adduce?style=flat-square&logoColor=white)](https://github.com/DeclanChidlow/Adduce/graphs/contributors)
   [![Licence](https://img.shields.io/github/license/DeclanChidlow/Adduce?style=flat-square&logoColor=white)](https://github.com/DeclanChidlow/Adduce/blob/main/LICENCE)
 </h1>
-Versatile static site generator written in Rust.
+Versatile, adaptable, and fast static site generator written in Rust.
 </div>
 <br/>
 
-Adduce is split into two distinct parts. Standard, and Feed.
+Adduce is a static site generator with the flexibility to bring your web projects to life. Its functionality has two distinct parts: individual and feed.
 
-### Adduce Standard
-Adduce Standard is used to generate individual pages. It's designed to be scripted in BASH and leverages a TOML file per page to grant absolute control over content and directory structure.
+### Individual
+As the name suggests, the individiual functionality is used to generate single pages. It leverages a configuration file per page to grant absolute control over included content and its order.
 
-### Adduce Feed
-Originally conceived as a management tool for Adduce, Adduce Feed found its niche in the realm of blogging. In contrast to Adduce Standard, all pages are generated from a single TOML file, and configuration can be simplified through an integrated setup wizard. Feed does sacrifice some filesystem control for user-friendliness and works well when used alongside Adduce Standard.
+### Feed
+The feed functionality, in contrast to the individual functionality, uses a single configuration file for all documents. Documents are written in markdown. The feed functionality also supports generating an Atom feed.
 
-### Sites Using Adduce
-- [Adduce - https://adduce.vale.rocks](https://adduce.vale.rocks)
-- [Vale.Rocks - https://vale.rocks](https://vale.rocks)
-- [Mutant Remix - https://mutant.revolt.chat](https://mutant.revolt.chat)
-- [ToastXC's Site - https://toastxc.xyz](https://toastxc.xyz)
+## Sites Using Adduce
+- **Adduce** - [Website](https://adduce.vale.rocks) | [Source Code](https://github.com/DeclanChidlow/Adduce-Site)
+- **Vale.Rocks** - [Website](https://vale.rocks) | [Source Code](https://github.com/DeclanChidlow/vale.rocks)
+- **Mutant Remix** - [Website](https://mutant.revolt.chat) | [Source Code](https://github.com/mutant-remix/website)
+- **ToastXC's Site** - [Website](https://toastxc.xyz) | [Source Code](https://github.com/toastxc/toastxc.xyz)
 
 ## Installation
-### Manual Install
-```console
-$ git clone https://github.com/DeclanChidlow/Adduce
-$ cd Adduce
-$ sh install.sh
+
+<details>
+<summary>Cargo</summary>
+
+```
+cargo install adduce
 ```
 
-## Dependencies
-- `wget`
-- `cargo` is required to build.
+</details>
+
+We are in the process of supporting more package managers.
+
+## Building
+
+1. Ensure you have Rust installed.
+
+2. Clone the repository:
+```
+git clone https://github.com/DeclanChidlow/Adduce
+```
+3. Enter the repository's directory:
+```
+cd Adduce
+```
+4. Build the program:
+```
+cargo build
+```
 
 ## Documentation 
-The project's usage is [documented in the wiki](https://github.com/DeclanChidlow/Adduce/wiki). If you want documentation for the code itself then you are best off checking the comments.
+Adduce's usage is [documented in the wiki](https://github.com/DeclanChidlow/Adduce/wiki). If you need documentation for the code itself, then you are best off checking the extensive code comments.
