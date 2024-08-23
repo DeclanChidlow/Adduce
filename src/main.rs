@@ -22,8 +22,8 @@ Options:
 See `adduce feed` for Adduce Feed usage.
 "#;
 
-pub use serde::{Deserialize, Serialize};
 use config::html::Generate;
+pub use serde::{Deserialize, Serialize};
 use std::env;
 
 fn main() {

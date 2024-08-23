@@ -43,7 +43,10 @@ impl Generate {
 
 pub fn generate_html(conf: Generate) {
     let output = conf.output.clone().unwrap_or_else(|| "output".to_string());
-    let html_filename = conf.filename.clone().unwrap_or_else(|| "index.html".to_string());
+    let html_filename = conf
+        .filename
+        .clone()
+        .unwrap_or_else(|| "index.html".to_string());
     let html_dir = format!("{output}/{html_filename}");
 
     // If the HTML file already exists, remove it

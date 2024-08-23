@@ -1,9 +1,9 @@
-use atom_syndication::{FeedBuilder, EntryBuilder, ContentBuilder, Text, GeneratorBuilder};
-use std::{fs, env, process::Command};
-use crate::config::toml::{Conf, Object, Main};
-use toml::de::Error as TomlError;
-use chrono::Utc;
+use crate::config::toml::{Conf, Main, Object};
 use crate::lib::filesystem::fs_to_str;
+use atom_syndication::{ContentBuilder, EntryBuilder, FeedBuilder, GeneratorBuilder, Text};
+use chrono::Utc;
+use std::{env, fs, process::Command};
+use toml::de::Error as TomlError;
 
 const HELP: &str = r#"
 Adduce Feed - create pages with shared configuration.
@@ -23,7 +23,6 @@ See `adduce` for creating individual pages.
 "#;
 
 pub fn process(args: Vec<String>) {
-
     if args.len() < 2 {
         println!("{HELP}");
         return;
@@ -55,10 +54,7 @@ pub fn process(args: Vec<String>) {
 
 // Create the required directory structure
 fn cli_establish() {
-    for dir in &[
-        "documents",
-        "export",
-    ] {
+    for dir in &["documents", "export"] {
         if fs::read_dir(dir).is_err() {
             println!("Creating {dir}...");
             fs::create_dir(dir).expect("Failed to create {dir}.");
@@ -116,7 +112,7 @@ fn cli_edit(filename: &str) {
         return;
     }
 
-        let editor_command = env::var("EDITOR").unwrap_or_else(|_| "notepad".to_string());
+    let editor_command = env::var("EDITOR").unwrap_or_else(|_| "notepad".to_string());
 
     Command::new(editor_command)
         .arg(file_path)
@@ -151,9 +147,10 @@ fn cli_export(document: &str) {
 
     let mut toml = conf;
     if let Some(main) = toml.main.as_mut() {
-        let position = main.block.iter().position(|obj| {
-            obj.format.as_deref() == Some("document")
-        });
+        let position = main
+            .block
+            .iter()
+            .position(|obj| obj.format.as_deref() == Some("document"));
 
         if let Some(pos) = position {
             main.block[pos] = md_object;
@@ -178,9 +175,13 @@ fn cli_export(document: &str) {
 fn cli_search(keyword: &str) {
     let entries = fs::read_dir("documents/")
         .expect("Failed to read documents directory.")
-        .filter_map(|entry| entry.ok().map(|e| e.file_name().into_string().unwrap_or_default()));
+        .filter_map(|entry| {
+            entry
+                .ok()
+                .map(|e| e.file_name().into_string().unwrap_or_default())
+        });
 
-        let mut found_results = false;
+    let mut found_results = false;
 
     for entry in entries {
         if entry.contains(keyword) {
@@ -210,7 +211,9 @@ fn cli_atom() {
         }
 
         let entry = EntryBuilder::default()
-            .title(Text::plain(path.file_name().unwrap().to_string_lossy().to_string()))
+            .title(Text::plain(
+                path.file_name().unwrap().to_string_lossy().to_string(),
+            ))
             .content(ContentBuilder::default().value(content).build())
             .build();
 
@@ -244,7 +247,10 @@ fn cli_atom() {
             missing_fields.push("id");
         }
 
-        println!("Atom feed not generated. Missing required fields: {}.", missing_fields.join(", "));
+        println!(
+            "Atom feed not generated. Missing required fields: {}.",
+            missing_fields.join(", ")
+        );
         return;
     }
 

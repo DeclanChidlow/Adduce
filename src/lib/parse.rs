@@ -1,5 +1,5 @@
-use crate::lib::filesystem::fs_to_str;
 use crate::config::toml::{Conf, Object};
+use crate::lib::filesystem::fs_to_str;
 use pulldown_cmark::{html, Options, Parser};
 
 impl Conf {
@@ -64,8 +64,15 @@ fn convert_markdown_to_html(content: &str) -> String {
 
 /// Format text by adding indentation
 fn format_text(content: &str) -> String {
-    content.lines()
+    content
+        .lines()
         .enumerate()
-        .map(|(i, line)| if i == 0 { line.to_string() } else { format!("\n{line}") } )// Avoid leading newline for the first element
+        .map(|(i, line)| {
+            if i == 0 {
+                line.to_string()
+            } else {
+                format!("\n{line}")
+            }
+        }) // Avoid leading newline for the first element
         .collect::<String>()
 }
