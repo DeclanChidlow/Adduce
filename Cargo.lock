@@ -295,29 +295,19 @@ checksum = "3fdb12b2476b595f9358c5161aa467c2438859caa136dec86c26fdd2efe17b92"
 
 [[package]]
 name = "optional_struct"
-version = "0.4.1"
+version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4cc83044fbb5cf2dfbf5bbe011f1ce6c68ce1c7f0c41423091e2c3b21c7ebb66"
+checksum = "14199f59efce6ed2c5854f0abc725c32eedfbd02c6ef82c9733c726f3fc6dc91"
 dependencies = [
- "optional_struct_export",
+ "optional_struct_macro",
  "serde",
 ]
 
 [[package]]
-name = "optional_struct_export"
-version = "0.4.1"
+name = "optional_struct_macro"
+version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3aab351802d85e41a5e679e6862c7639726920c7b93fbd2a7aec925509c088ed"
-dependencies = [
- "optional_struct_macro_impl",
- "quote",
-]
-
-[[package]]
-name = "optional_struct_macro_impl"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6d8ed6022d195dd0ab66d5d214eddbe887ef5489f708ff8be131296111d475ef"
+checksum = "e5eba042d9efe5e108e0df9ce2f85c540fc4f94f41c6821cbcf70ed47c1221da"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -335,9 +325,9 @@ dependencies = [
 
 [[package]]
 name = "pulldown-cmark"
-version = "0.11.2"
+version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cb4e75767fbc9d92b90e4d0c011f61358cde9513b31ef07ea3631b15ffc3b4fd"
+checksum = "4d31cbfcd94884c3a67ec210c83efb06cb43674043458b0ad59f6947f8462c23"
 dependencies = [
  "bitflags",
  "getopts",
