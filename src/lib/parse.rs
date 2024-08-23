@@ -55,7 +55,8 @@ fn convert_markdown_to_html(content: &str) -> String {
             | Options::ENABLE_HEADING_ATTRIBUTES
             | Options::ENABLE_YAML_STYLE_METADATA_BLOCKS
             | Options::ENABLE_MATH
-            | Options::ENABLE_GFM,
+            | Options::ENABLE_GFM
+            | Options::ENABLE_DEFINITION_LIST,
     );
     html::push_html(&mut html_output, parser);
     html_output
