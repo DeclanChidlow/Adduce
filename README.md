@@ -23,7 +23,6 @@ The feed functionality, in contrast to the individual functionality, uses a sing
 
 ## Sites Using Adduce
 - **Adduce** - [Website](https://adduce.vale.rocks) | [Source Code](https://github.com/DeclanChidlow/Adduce-Site)
-- **Vale.Rocks** - [Website](https://vale.rocks) | [Source Code](https://github.com/DeclanChidlow/vale.rocks)
 - **Mutant Remix** - [Website](https://mutant.revolt.chat) | [Source Code](https://github.com/mutant-remix/website)
 - **ToastXC's Site** - [Website](https://toastxc.xyz) | [Source Code](https://github.com/toastxc/toastxc.xyz)
 - **Emily Drage's Portfolio** - [Website](https://emilydrage.com) | [Source Code](https://github.com/emdragee/emily.drage)
