@@ -13,13 +13,13 @@ Versatile, adaptable, and fast static site generator written in Rust.
 </div>
 <br/>
 
-Adduce is a static site generator with the flexibility to bring your web projects to life. Its functionality has two distinct parts: individual and feed.
+Adduce is a static site generator with the flexibility to bring your web projects to life. Its functionality has two distinct parts: individual and feed. Both use Markdown for document authoring.
 
 ### Individual
-As the name suggests, the individiual functionality is used to generate single pages. It leverages a configuration file per page to grant absolute control over included content and its order.
+As the name suggests, the individual functionality is used to generate single pages. It leverages a configuration file per page to grant absolute control over included content and its order.
 
 ### Feed
-The feed functionality, in contrast to the individual functionality, uses a single configuration file for all documents. Documents are written in markdown. The feed functionality also supports generating an Atom feed.
+The feed functionality, in contrast to the individual functionality, uses a single configuration file for all documents. The feed functionality also supports generating an Atom feed.
 
 ## Sites Using Adduce
 - **Adduce** - [Website](https://adduce.vale.rocks) | [Source Code](https://github.com/DeclanChidlow/Adduce-Site)
