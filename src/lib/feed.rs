@@ -2,8 +2,7 @@ use crate::config::toml::{Conf, Main, Object};
 use crate::lib::filesystem::fs_to_str;
 use atom_syndication::{ContentBuilder, EntryBuilder, FeedBuilder, GeneratorBuilder, Text};
 use chrono::Utc;
-use std::{env, fs, process::Command};
-use toml::de::Error as TomlError;
+use std::{env, fs, path::Path, process::Command};
 
 const HELP: &str = r#"
 Adduce Feed - create pages with shared configuration.
@@ -55,9 +54,9 @@ pub fn process(args: Vec<String>) {
 // Create the required directory structure
 fn cli_establish() {
     for dir in &["documents", "export"] {
-        if fs::read_dir(dir).is_err() {
+        if !Path::new(dir).exists() {
             println!("Creating {dir}...");
-            fs::create_dir(dir).expect("Failed to create {dir}.");
+            fs::create_dir(dir).unwrap_or_else(|_| panic!("Failed to create {dir}."));
         }
     }
 }
@@ -67,12 +66,12 @@ fn cli_create(filename: &str) {
     let folder_path = "documents";
     let file_path = format!("{folder_path}/{filename}.md");
 
-    if !fs::metadata(folder_path).is_ok() {
-        eprintln!("The documents folder does not exist. Please run `adduce feed establish` to create the necessary file structure.");
+    if !Path::new(folder_path).exists() {
+        eprintln!("The documents folder does not exist. Please run `adduce feed establish`.");
         return;
     }
 
-    if fs::metadata(&file_path).is_ok() {
+    if Path::new(&file_path).exists() {
         eprintln!("Document already exists: {file_path}.");
         return;
     }
@@ -107,7 +106,7 @@ fn cli_remove(filename: &str) {
 fn cli_edit(filename: &str) {
     let file_path = format!("documents/{filename}.md");
 
-    if fs::read(&file_path).is_err() {
+    if !Path::new(&file_path).exists() {
         println!("No documents with that name.");
         return;
     }
@@ -122,10 +121,10 @@ fn cli_edit(filename: &str) {
         .expect("Editor exited with error.");
 }
 
-// Generate a HTML version of the input document
+// Generate an HTML version of the input document
 fn cli_export(document: &str) {
     let md_file_path = format!("documents/{document}.md");
-    if fs::metadata(&md_file_path).is_err() {
+    if !Path::new(&md_file_path).exists() {
         println!("Input file '{document}' does not exist. Please create it first.");
         return;
     }
@@ -147,12 +146,11 @@ fn cli_export(document: &str) {
 
     let mut toml = conf;
     if let Some(main) = toml.main.as_mut() {
-        let position = main
+        if let Some(pos) = main
             .block
             .iter()
-            .position(|obj| obj.format.as_deref() == Some("document"));
-
-        if let Some(pos) = position {
+            .position(|obj| obj.format.as_deref() == Some("document"))
+        {
             main.block[pos] = md_object;
         } else {
             main.block.push(md_object);
@@ -195,29 +193,32 @@ fn cli_search(keyword: &str) {
     }
 }
 
-// TODO: Allow front matter in documents so it can be referenced here:
-
 // Generate an Atom feed
 fn cli_atom() {
     let mut entries = Vec::new();
 
-    for entry in fs::read_dir("export/").unwrap() {
-        let entry = entry.unwrap();
-        let path = entry.path();
-        let content = fs::read_to_string(&path).unwrap_or_default();
+    let Ok(export_dir) = fs::read_dir("export/") else {
+        println!("Export directory not found. Please establish and export documents first.");
+        return;
+    };
 
-        if path.file_name().unwrap() == "feed.xml" {
+    for entry in export_dir.flatten() {
+        let path = entry.path();
+
+        let Some(file_name) = path.file_name() else {
+            continue;
+        };
+        if file_name == "feed.xml" {
             continue;
         }
 
-        let entry = EntryBuilder::default()
-            .title(Text::plain(
-                path.file_name().unwrap().to_string_lossy().to_string(),
-            ))
+        let content = fs::read_to_string(&path).unwrap_or_default();
+        let entry_item = EntryBuilder::default()
+            .title(Text::plain(file_name.to_string_lossy().to_string()))
             .content(ContentBuilder::default().value(content).build())
             .build();
 
-        entries.push(entry);
+        entries.push(entry_item);
     }
 
     let conf_content = match fs::read_to_string("conf.toml") {
@@ -228,8 +229,7 @@ fn cli_atom() {
         }
     };
 
-    let conf: Result<Conf, TomlError> = toml::from_str(&conf_content);
-    let conf = match conf {
+    let conf: Conf = match toml::from_str(&conf_content) {
         Ok(conf) => conf,
         Err(e) => {
             println!("Error parsing configuration file: {e}");
@@ -239,7 +239,6 @@ fn cli_atom() {
 
     if conf.title.is_none() || conf.id.is_none() {
         let mut missing_fields = Vec::new();
-
         if conf.title.is_none() {
             missing_fields.push("title");
         }
@@ -264,11 +263,8 @@ fn cli_atom() {
         .title(Text::plain(conf.title.unwrap()))
         .id(conf.id.as_ref().unwrap())
         .updated(Utc::now())
-        // TODO: Authors
-        // TODO: Categories
         .generator(generator)
         .icon(conf.icon)
-        // TODO: Links
         .logo(conf.logo)
         .rights(conf.rights.map(Text::plain))
         .entries(entries)

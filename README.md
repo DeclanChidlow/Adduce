@@ -16,12 +16,15 @@ Versatile, adaptable, and fast static site generator written in Rust.
 Adduce is a static site generator with the flexibility to bring your web projects to life. Its functionality has two distinct parts: individual and feed.
 
 ### Individual
-As the name suggests, the individiual functionality is used to generate single pages. It leverages a configuration file per page to grant absolute control over included content and its order.
+
+As the name suggests, the individual functionality is used to generate single pages. It leverages a configuration file per page to grant absolute control over included content and its order.
 
 ### Feed
+
 The feed functionality, in contrast to the individual functionality, uses a single configuration file for all documents. Documents are written in markdown. The feed functionality also supports generating an Atom feed.
 
 ## Sites Using Adduce
+
 - **Adduce** - [Website](https://adduce.vale.rocks) | [Source Code](https://github.com/DeclanChidlow/Adduce-Site)
 - **Mutant Remix** - [Website](https://mutant.revolt.chat) | [Source Code](https://github.com/mutant-remix/website)
 - **ToastXC's Site** - [Website](https://toastxc.xyz) | [Source Code](https://github.com/toastxc/toastxc.xyz)
@@ -45,17 +48,23 @@ We are in the process of supporting more package managers.
 1. Ensure you have Rust installed.
 
 2. Clone the repository:
-```
+
+```console
 git clone https://github.com/DeclanChidlow/Adduce
 ```
+
 3. Enter the repository's directory:
-```
+
+```console
 cd Adduce
 ```
+
 4. Build the program:
-```
+
+```console
 cargo build
 ```
 
-## Documentation 
+## Documentation
+
 Adduce's usage is [documented in the wiki](https://github.com/DeclanChidlow/Adduce/wiki). If you need documentation for the code itself, then you are best off checking the extensive code comments.

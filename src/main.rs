@@ -34,14 +34,14 @@ fn main() {
         return;
     }
 
-    // If the command line arguments contain "feed", process them with the feed module and return
-    if args.contains(&String::from("feed")) {
+    // Process feed module if it's the primary command
+    if args[0] == "feed" {
         lib::feed::process(args);
         return;
     }
 
     if args.len() % 2 != 0 {
-        println!("Invalid arguments");
+        println!("Invalid arguments. Ensure options are provided in pairs.");
         return;
     }
 
@@ -49,37 +49,18 @@ fn main() {
     let mut iter = args.iter();
 
     while let Some(arg) = iter.next() {
+        let Some(val) = iter.next() else { break };
+
         genconf = match arg.as_str() {
-            "--config" | "-c" => {
-                if let Some(path) = iter.next() {
-                    genconf.conf_str(&format!("{}/conf.toml", path))
-                } else {
-                    eprintln!("Error: --config requires a path");
-                    return;
-                }
-            }
-            "--output" | "-o" => {
-                if let Some(path) = iter.next() {
-                    genconf.output_dir(path)
-                } else {
-                    eprintln!("Error: --output requires a path");
-                    return;
-                }
-            }
-            "--name" | "-n" => {
-                if let Some(name) = iter.next() {
-                    genconf.filename(name)
-                } else {
-                    eprintln!("Error: --name requires a file name");
-                    return;
-                }
-            }
+            "--config" | "-c" => genconf.conf_str(&format!("{}/conf.toml", val)),
+            "--output" | "-o" => genconf.output_dir(val),
+            "--name" | "-n" => genconf.filename(val),
             _ => {
-                eprintln!("Unknown argument: {}", arg);
+                eprintln!("Unknown argument: {arg}");
                 return;
             }
         };
     }
 
-    Generate::from_conf(genconf);
+    genconf.generate();
 }

@@ -1,6 +1,6 @@
 [package]
 name = "adduce"
-version = "0.1.6"
+version = "0.1.7"
 authors = ["Declan Chidlow <vale@vale.rocks>", "ToastXC <contact@toastxc.xyz>"]
 edition = "2021"
 description = "A versatile, adaptable, and fast. static site generator."
@@ -19,6 +19,6 @@ categories = [
 serde = { version = "^1.0", features = ["derive"] }
 optional_struct = "^0.5"
 toml = "^0.8"
-pulldown-cmark = "^0.12"
+pulldown-cmark = "^0.13"
 atom_syndication = "^0.12"
 chrono = "^0.4"
