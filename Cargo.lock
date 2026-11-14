@@ -8,7 +8,6 @@ version = "0.1.7"
 dependencies = [
  "atom_syndication",
  "chrono",
- "optional_struct",
  "pulldown-cmark",
  "serde",
  "toml",
@@ -322,27 +321,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
 dependencies = [
  "autocfg",
-]
-
-[[package]]
-name = "optional_struct"
-version = "0.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "14199f59efce6ed2c5854f0abc725c32eedfbd02c6ef82c9733c726f3fc6dc91"
-dependencies = [
- "optional_struct_macro",
- "serde",
-]
-
-[[package]]
-name = "optional_struct_macro"
-version = "0.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e5eba042d9efe5e108e0df9ce2f85c540fc4f94f41c6821cbcf70ed47c1221da"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.119",
 ]
 
 [[package]]

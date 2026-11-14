@@ -1,6 +1,6 @@
 use crate::config::toml::{Conf, Object};
 use crate::lib::filesystem::fs_to_str;
-use pulldown_cmark::{html, Options, Parser};
+use pulldown_cmark::{Options, Parser, html};
 
 impl Conf {
     pub fn to_html(&self) -> String {

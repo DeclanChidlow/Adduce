@@ -2,7 +2,8 @@
 name = "adduce"
 version = "0.1.7"
 authors = ["Declan Chidlow <vale@vale.rocks>", "ToastXC <contact@toastxc.xyz>"]
-edition = "2021"
+edition = "2024"
+rust-version = "1.85"
 description = "A versatile, adaptable, and fast. static site generator."
 homepage = "https://adduce.vale.rocks"
 repository = "https://github.com/DeclanChidlow/Adduce"
@@ -17,7 +18,6 @@ categories = [
 
 [dependencies]
 serde = { version = "^1.0.229", features = ["derive"] }
-optional_struct = "^0.5.2"
 toml = "^1.2.1"
 pulldown-cmark = "^0.13.6"
 atom_syndication = "^0.12.10"
