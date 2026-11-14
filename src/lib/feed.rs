@@ -1,4 +1,5 @@
 use crate::config::toml::{Conf, Main, Object};
+use crate::lib::document::element_inner_html;
 use crate::lib::filesystem::fs_to_str;
 use atom_syndication::{
     Category, CategoryBuilder, ContentBuilder, Entry, EntryBuilder, FeedBuilder, GeneratorBuilder,
@@ -398,7 +399,7 @@ fn parse_page_metadata(html: &str, base: Option<&str>, file_name: &str) -> PageM
 
     let authors = page_authors(&properties, &names);
     let categories = page_categories(&properties);
-    let content = page_content(&document);
+    let content = page_content(html);
 
     PageMetadata {
         title,
@@ -563,20 +564,12 @@ fn page_categories(properties: &HashMap<String, Vec<String>>) -> Vec<String> {
     categories
 }
 
-fn page_content(document: &tl::VDom<'_>) -> Option<String> {
+fn page_content(html: &str) -> Option<String> {
     for element in ["article", "main", "body"] {
-        let Some(handle) = document
-            .query_selector(element)
-            .and_then(|mut nodes| nodes.next())
-        else {
-            continue;
-        };
-        let Some(tag) = handle.get(document.parser()).and_then(|node| node.as_tag()) else {
-            continue;
-        };
-        let content = tag.inner_html(document.parser());
-        if !content.trim().is_empty() {
-            return Some(content);
+        if let Some(content) = element_inner_html(html, element) {
+            if !content.trim().is_empty() {
+                return Some(content);
+            }
         }
     }
 

@@ -1,4 +1,5 @@
 mod lib {
+    pub mod document;
     pub mod feed;
     pub mod filesystem;
     pub mod parse;
