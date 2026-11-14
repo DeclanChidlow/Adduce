@@ -5,7 +5,7 @@ use html_escape::encode_double_quoted_attribute;
 use pulldown_cmark::{Options, Parser, html};
 
 impl Conf {
-    pub fn to_html(&self) -> String {
+    pub fn to_html(&self) -> Result<String, String> {
         let mut document = Document::default();
 
         if let Some(head) = &self.head {
@@ -13,9 +13,9 @@ impl Conf {
                 Head::Files(files) => files
                     .iter()
                     .map(|file| fs_to_str(file))
-                    .collect::<Vec<_>>()
+                    .collect::<Result<Vec<_>, _>>()?
                     .join("\n"),
-                Head::Blocks(main) => compile_blocks(&main.block),
+                Head::Blocks(main) => compile_blocks(&main.block)?,
             };
             document.add(&source, Section::Head);
         }
@@ -24,32 +24,35 @@ impl Conf {
             let css = styles
                 .iter()
                 .map(|file| fs_to_str(file))
-                .collect::<Vec<_>>()
+                .collect::<Result<Vec<_>, _>>()?
                 .join("\n");
             document.add_style(&css);
         }
 
         if let Some(main) = &self.main {
-            document.add(&compile_blocks(&main.block), Section::Body);
+            document.add(&compile_blocks(&main.block)?, Section::Body);
         }
 
-        document.render(self.lang.as_deref())
+        Ok(document.render(self.lang.as_deref()))
     }
 }
 
-fn compile_blocks(blocks: &[Object]) -> String {
-    blocks.iter().map(compile_html).collect()
+fn compile_blocks(blocks: &[Object]) -> Result<String, String> {
+    blocks
+        .iter()
+        .map(compile_html)
+        .collect::<Result<String, String>>()
 }
 
 /// Compile the input as outlined in the config to HTML
-fn compile_html(obj: &Object) -> String {
+fn compile_html(obj: &Object) -> Result<String, String> {
     let format = obj
         .format
         .as_deref()
         .filter(|format| !format.is_empty())
         .unwrap_or("html");
     let content = match &obj.content_file {
-        Some(file_path) => fs_to_str(file_path),
+        Some(file_path) => fs_to_str(file_path)?,
         None => obj
             .content
             .clone()
@@ -60,7 +63,7 @@ fn compile_html(obj: &Object) -> String {
         format!(" id=\"{}\"", encode_double_quoted_attribute(id))
     });
 
-    match format {
+    Ok(match format {
         "br" => "<br/>\n".to_string(),
         "hr" => "<hr/>\n".to_string(),
         "html" => format!("{content}\n"),
@@ -68,7 +71,7 @@ fn compile_html(obj: &Object) -> String {
         "document" => String::new(),
         format if is_void_element(format) => format!("<{format}{id_attribute}/>\n"),
         _ => format!("<{format}{id_attribute}>{content}</{format}>\n"),
-    }
+    })
 }
 
 /// Convert a Markdown string to a HTML string

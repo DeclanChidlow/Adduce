@@ -3,8 +3,8 @@ use core::fmt;
 use std::fs;
 
 // Function to read a file from a directory and return its content as a string
-pub fn fs_to_str(directory: &str) -> String {
-    fs::read_to_string(directory).unwrap_or_else(|_| panic!("File could not be found: {directory}"))
+pub fn fs_to_str(directory: &str) -> Result<String, String> {
+    fs::read_to_string(directory).map_err(|error| format!("Could not read {directory}: {error}"))
 }
 
 // Custom error type for importing configs
@@ -30,10 +30,10 @@ impl fmt::Display for ConfError {
 }
 
 // Define a Result type alias for operations that return a Conf or a ConfError
-type Result<T> = std::result::Result<T, ConfError>;
+type ConfResult<T> = std::result::Result<T, ConfError>;
 
 // Function to import a configuration from a file
-pub fn import_conf(directory: &str) -> Result<Conf> {
+pub fn import_conf(directory: &str) -> ConfResult<Conf> {
     let content = fs::read_to_string(directory)
         .map_err(|e| ConfError(CError::File(e.to_string(), directory.to_string())))?;
 

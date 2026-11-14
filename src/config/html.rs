@@ -58,7 +58,8 @@ impl Generate {
             })?;
         }
 
-        fs::write(&html_path, self.config.to_html())
+        let html = self.config.to_html()?;
+        fs::write(&html_path, html)
             .map_err(|error| format!("Error writing {}: {error}", html_path.display()))
     }
 }

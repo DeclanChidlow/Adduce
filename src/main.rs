@@ -44,8 +44,13 @@ fn main() -> ExitCode {
 
     // Process feed module if it's the primary command
     if args[0] == "feed" {
-        lib::feed::process(args);
-        return ExitCode::SUCCESS;
+        return match lib::feed::process(args) {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(error) => {
+                eprintln!("{error}");
+                ExitCode::FAILURE
+            }
+        };
     }
 
     if args.len() % 2 != 0 {

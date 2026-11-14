@@ -28,10 +28,10 @@ Commands:
 See `adduce` for creating individual pages.
 "#;
 
-pub fn process(args: Vec<String>) {
-    if args.len() < 2 {
+pub fn process(args: Vec<String>) -> Result<(), String> {
+    if args.len() < 2 || matches!(args[1].as_str(), "--help" | "-h") {
         println!("{HELP}");
-        return;
+        return Ok(());
     }
 
     let command = args[1].as_str();
@@ -40,124 +40,120 @@ pub fn process(args: Vec<String>) {
         "establish" => cli_establish(),
         "atom" => cli_atom(),
         "create" | "remove" | "edit" | "export" | "search" => {
-            if args.len() < 3 {
-                println!("{HELP}");
-                return;
-            }
-            let argument = args[2].as_str();
+            let Some(argument) = args.get(2) else {
+                return Err(format!(
+                    "Missing argument for `adduce feed {command}`.\n\n{HELP}"
+                ));
+            };
             match command {
                 "create" => cli_create(argument),
                 "remove" => cli_remove(argument),
                 "edit" => cli_edit(argument),
                 "export" => cli_export(argument),
                 "search" => cli_search(argument),
-                _ => println!("{HELP}"),
+                _ => unreachable!(),
             }
         }
-        _ => println!("{HELP}"),
+        _ => Err(format!("Unknown feed command: {command}.\n\n{HELP}")),
     }
 }
 
 // Create the required directory structure
-fn cli_establish() {
+fn cli_establish() -> Result<(), String> {
     for dir in &["documents", "export"] {
         if !Path::new(dir).exists() {
             println!("Creating {dir}...");
-            if let Err(error) = fs::create_dir(dir) {
-                eprintln!("Failed to create {dir}: {error}.");
-            }
+            fs::create_dir(dir).map_err(|error| format!("Failed to create {dir}: {error}"))?;
         }
     }
+    Ok(())
 }
 
 // Create a new document
-fn cli_create(filename: &str) {
+fn cli_create(filename: &str) -> Result<(), String> {
     let folder_path = "documents";
     let file_path = format!("{folder_path}/{filename}.md");
 
     if !Path::new(folder_path).exists() {
-        eprintln!("The documents folder does not exist. Please run `adduce feed establish`.");
-        return;
+        return Err(
+            "The documents folder does not exist. Please run `adduce feed establish`.".to_string(),
+        );
     }
 
     if Path::new(&file_path).exists() {
-        eprintln!("Document already exists: {file_path}.");
-        return;
+        return Err(format!("Document already exists: {file_path}."));
     }
 
     let initial_content = format!("# {filename}\n");
-    if let Err(err) = fs::write(&file_path, initial_content) {
-        eprintln!("Failed to create file {file_path}: {err}.");
-        return;
-    }
+    fs::write(&file_path, initial_content)
+        .map_err(|error| format!("Failed to create file {file_path}: {error}"))?;
 
     println!("Created new file: {file_path}.");
+    Ok(())
 }
 
 // Remove a requested document
-fn cli_remove(filename: &str) {
+fn cli_remove(filename: &str) -> Result<(), String> {
     let md_file_path = format!("documents/{filename}.md");
-    if let Err(error) = fs::remove_file(&md_file_path) {
-        println!("Error removing source document {filename}: {error}.");
-    } else {
-        println!("Deleted source document '{filename}'.");
+    if !Path::new(&md_file_path).exists() {
+        return Err(format!("Document '{filename}' does not exist."));
     }
 
+    fs::remove_file(&md_file_path)
+        .map_err(|error| format!("Error removing source document {filename}: {error}"))?;
+
     let html_file_path = format!("export/{filename}.html");
-    if let Err(error) = fs::remove_file(&html_file_path) {
-        println!("Error removing exported document {filename}: {error}.");
-    } else {
-        println!("Deleted exported document '{filename}'.");
+    if Path::new(&html_file_path).exists() {
+        fs::remove_file(&html_file_path)
+            .map_err(|error| format!("Error removing exported document {filename}: {error}"))?;
     }
+
+    println!("Deleted '{filename}'.");
+    Ok(())
 }
 
 // Edit a requested document
-fn cli_edit(filename: &str) {
+fn cli_edit(filename: &str) -> Result<(), String> {
     let file_path = format!("documents/{filename}.md");
 
     if !Path::new(&file_path).exists() {
-        println!("No documents with that name.");
-        return;
+        return Err(format!("No document named '{filename}'."));
     }
 
     let editor_command = env::var("EDITOR").unwrap_or_else(|_| "notepad".to_string());
 
-    let mut child = match Command::new(editor_command).arg(file_path).spawn() {
-        Ok(child) => child,
-        Err(error) => {
-            eprintln!("Failed to launch editor: {error}.");
-            return;
-        }
-    };
+    let mut child = Command::new(editor_command)
+        .arg(file_path)
+        .spawn()
+        .map_err(|error| format!("Failed to launch editor: {error}"))?;
 
-    if let Err(error) = child.wait() {
-        eprintln!("Editor exited with an error: {error}.");
-    }
+    child
+        .wait()
+        .map_err(|error| format!("Editor exited with an error: {error}"))?;
+
+    Ok(())
 }
 
 // Generate an HTML version of the input document
-fn cli_export(document: &str) {
+fn cli_export(document: &str) -> Result<(), String> {
     let md_file_path = format!("documents/{document}.md");
     if !Path::new(&md_file_path).exists() {
-        println!("Input file '{document}' does not exist. Please create it first.");
-        return;
+        return Err(format!(
+            "Input file '{document}' does not exist. Please create it first."
+        ));
     }
 
-    let conf = match fs::read_to_string("conf.toml") {
-        Ok(content) => match toml::from_str::<Conf>(&content) {
-            Ok(conf) => conf,
-            Err(error) => {
-                eprintln!("Error parsing configuration file: {error}");
-                return;
-            }
-        },
-        Err(error) => {
-            eprintln!("{error}\nYou must manually create a conf.toml file for your feed.");
-            return;
-        }
-    };
+    if !Path::new("export").exists() {
+        return Err("Export directory not found. Please run `adduce feed establish`.".to_string());
+    }
 
-    let content = fs_to_str(&md_file_path);
+    let conf_content = fs::read_to_string("conf.toml").map_err(|error| {
+        format!("{error}\nYou must manually create a conf.toml file for your feed.")
+    })?;
+    let conf = toml::from_str::<Conf>(&conf_content)
+        .map_err(|error| format!("Error parsing configuration file: {error}"))?;
+
+    let content = fs_to_str(&md_file_path)?;
     let md_object = Object {
         format: Some("md".to_string()),
         content: Some(content),
@@ -181,23 +177,18 @@ fn cli_export(document: &str) {
         });
     }
 
-    if let Err(err) = fs::write(format!("export/{document}.html"), toml.to_html()) {
-        eprintln!("Failed to export {document}: {err}.");
-        return;
-    }
+    let html = toml.to_html()?;
+    fs::write(format!("export/{document}.html"), html)
+        .map_err(|error| format!("Failed to export {document}: {error}"))?;
 
     println!("Successfully exported {document}.");
+    Ok(())
 }
 
 // Search documents
-fn cli_search(keyword: &str) {
-    let entries = match fs::read_dir("documents/") {
-        Ok(entries) => entries,
-        Err(error) => {
-            eprintln!("Failed to read documents directory: {error}.");
-            return;
-        }
-    };
+fn cli_search(keyword: &str) -> Result<(), String> {
+    let entries = fs::read_dir("documents/")
+        .map_err(|error| format!("Failed to read documents directory: {error}"))?;
 
     let entries = entries.filter_map(|entry| {
         entry
@@ -217,40 +208,31 @@ fn cli_search(keyword: &str) {
     if !found_results {
         println!("No results found for '{keyword}'.");
     }
+
+    Ok(())
 }
 
 // Generate an Atom feed
-fn cli_atom() {
-    let conf_content = match fs::read_to_string("conf.toml") {
-        Ok(content) => content,
-        Err(e) => {
-            println!("Error reading configuration file: {e}\nNo configuration file found.");
-            return;
-        }
-    };
+fn cli_atom() -> Result<(), String> {
+    let conf_content = fs::read_to_string("conf.toml").map_err(|error| {
+        format!("Error reading configuration file: {error}\nNo configuration file found.")
+    })?;
 
-    let conf: Conf = match toml::from_str(&conf_content) {
-        Ok(conf) => conf,
-        Err(e) => {
-            println!("Error parsing configuration file: {e}");
-            return;
-        }
-    };
+    let mut conf: Conf = toml::from_str(&conf_content)
+        .map_err(|error| format!("Error parsing configuration file: {error}"))?;
 
-    if conf.title.is_none() || conf.id.is_none() {
-        let mut missing_fields = Vec::new();
-        if conf.title.is_none() {
-            missing_fields.push("title");
-        }
-        if conf.id.is_none() {
-            missing_fields.push("id");
-        }
-
-        println!(
+    let mut missing_fields = Vec::new();
+    if conf.title.is_none() {
+        missing_fields.push("title");
+    }
+    if conf.id.is_none() {
+        missing_fields.push("id");
+    }
+    if !missing_fields.is_empty() {
+        return Err(format!(
             "Atom feed not generated. Missing required fields: {}.",
             missing_fields.join(", ")
-        );
-        return;
+        ));
     }
 
     let base = conf
@@ -259,10 +241,9 @@ fn cli_atom() {
         .filter(|base| IriAbsoluteStr::new(base).is_ok())
         .or(conf.id.as_deref());
 
-    let Ok(export_dir) = fs::read_dir("export/") else {
-        println!("Export directory not found. Please establish and export documents first.");
-        return;
-    };
+    let export_dir = fs::read_dir("export/").map_err(|error| {
+        format!("Export directory not found: {error}. Please establish and export documents first.")
+    })?;
 
     let mut entries = Vec::new();
 
@@ -323,9 +304,12 @@ fn cli_atom() {
         .version(env!("CARGO_PKG_VERSION").to_string())
         .build();
 
+    let title = conf.title.take().expect("title checked above");
+    let id = conf.id.take().expect("id checked above");
+
     let feed = FeedBuilder::default()
-        .title(Text::plain(conf.title.unwrap()))
-        .id(conf.id.as_ref().unwrap())
+        .title(Text::plain(title))
+        .id(id)
         .updated(updated)
         .generator(generator)
         .icon(conf.icon)
@@ -337,11 +321,11 @@ fn cli_atom() {
         .lang(conf.lang)
         .build();
 
-    if let Err(e) = fs::write("export/feed.xml", feed.to_string()) {
-        eprintln!("Failed to write Atom feed: {e}");
-    } else {
-        println!("Atom feed generated successfully.");
-    }
+    fs::write("export/feed.xml", feed.to_string())
+        .map_err(|error| format!("Failed to write Atom feed: {error}"))?;
+
+    println!("Atom feed generated successfully.");
+    Ok(())
 }
 
 #[derive(Debug, Default)]
