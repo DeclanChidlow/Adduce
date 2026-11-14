@@ -304,6 +304,36 @@ pub(crate) fn element_inner_html(source: &str, name: &str) -> Option<String> {
     None
 }
 
+/// Call a closure for every opening element, skipping raw text content.
+pub(crate) fn for_each_element<'a>(source: &'a str, mut callback: impl FnMut(&'a str, &'a str)) {
+    let mut position = 0;
+
+    while let Some(tag) = next_tag(source, &mut position) {
+        if !tag.closing {
+            callback(tag.name, tag.attrs);
+        }
+    }
+}
+
+/// Return an attribute value with its surrounding quotes removed.
+pub(crate) fn attribute_value<'a>(attrs: &'a str, name: &str) -> Option<&'a str> {
+    let (_, value) = parse_attributes(attrs)
+        .into_iter()
+        .find(|(key, _)| key.eq_ignore_ascii_case(name))?;
+    let value = value?;
+
+    if value.len() >= 2 {
+        let first = value.as_bytes()[0];
+        let last = value.as_bytes()[value.len() - 1];
+
+        if (first == b'"' && last == b'"') || (first == b'\'' && last == b'\'') {
+            return Some(&value[1..value.len() - 1]);
+        }
+    }
+
+    Some(value)
+}
+
 /// Head and body portions extracted from a source.
 struct Split<'a> {
     structured: bool,

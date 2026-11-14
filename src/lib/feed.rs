@@ -1,5 +1,5 @@
 use crate::config::toml::{Conf, Main, Object};
-use crate::lib::document::element_inner_html;
+use crate::lib::document::{attribute_value, element_inner_html, for_each_element};
 use crate::lib::filesystem::fs_to_str;
 use atom_syndication::{
     Category, CategoryBuilder, ContentBuilder, Entry, EntryBuilder, FeedBuilder, GeneratorBuilder,
@@ -63,7 +63,9 @@ fn cli_establish() {
     for dir in &["documents", "export"] {
         if !Path::new(dir).exists() {
             println!("Creating {dir}...");
-            fs::create_dir(dir).unwrap_or_else(|_| panic!("Failed to create {dir}."));
+            if let Err(error) = fs::create_dir(dir) {
+                eprintln!("Failed to create {dir}: {error}.");
+            }
         }
     }
 }
@@ -120,12 +122,17 @@ fn cli_edit(filename: &str) {
 
     let editor_command = env::var("EDITOR").unwrap_or_else(|_| "notepad".to_string());
 
-    Command::new(editor_command)
-        .arg(file_path)
-        .spawn()
-        .expect("Failed to launch editor.")
-        .wait()
-        .expect("Editor exited with error.");
+    let mut child = match Command::new(editor_command).arg(file_path).spawn() {
+        Ok(child) => child,
+        Err(error) => {
+            eprintln!("Failed to launch editor: {error}.");
+            return;
+        }
+    };
+
+    if let Err(error) = child.wait() {
+        eprintln!("Editor exited with an error: {error}.");
+    }
 }
 
 // Generate an HTML version of the input document
@@ -137,9 +144,15 @@ fn cli_export(document: &str) {
     }
 
     let conf = match fs::read_to_string("conf.toml") {
-        Ok(content) => toml::from_str::<Conf>(&content).unwrap(),
-        Err(e) => {
-            println!("{e}\nYou must manually create a conf.toml file for your feed.");
+        Ok(content) => match toml::from_str::<Conf>(&content) {
+            Ok(conf) => conf,
+            Err(error) => {
+                eprintln!("Error parsing configuration file: {error}");
+                return;
+            }
+        },
+        Err(error) => {
+            eprintln!("{error}\nYou must manually create a conf.toml file for your feed.");
             return;
         }
     };
@@ -178,13 +191,19 @@ fn cli_export(document: &str) {
 
 // Search documents
 fn cli_search(keyword: &str) {
-    let entries = fs::read_dir("documents/")
-        .expect("Failed to read documents directory.")
-        .filter_map(|entry| {
-            entry
-                .ok()
-                .map(|e| e.file_name().into_string().unwrap_or_default())
-        });
+    let entries = match fs::read_dir("documents/") {
+        Ok(entries) => entries,
+        Err(error) => {
+            eprintln!("Failed to read documents directory: {error}.");
+            return;
+        }
+    };
+
+    let entries = entries.filter_map(|entry| {
+        entry
+            .ok()
+            .map(|e| e.file_name().into_string().unwrap_or_default())
+    });
 
     let mut found_results = false;
 
@@ -344,42 +363,55 @@ struct PageAuthor {
 }
 
 fn parse_page_metadata(html: &str, base: Option<&str>, file_name: &str) -> PageMetadata {
-    let Ok(document) = tl::parse(html, tl::ParserOptions::default()) else {
-        return PageMetadata::default();
-    };
-
     let mut properties: HashMap<String, Vec<String>> = HashMap::new();
     let mut names: HashMap<String, Vec<String>> = HashMap::new();
+    let mut canonical = None;
 
-    for handle in document.query_selector("meta").into_iter().flatten() {
-        let Some(tag) = handle.get(document.parser()).and_then(|node| node.as_tag()) else {
-            continue;
-        };
-        let Some(content) = attribute(tag, "content") else {
-            continue;
-        };
-        let content = content.trim();
-        if content.is_empty() {
-            continue;
-        }
+    for_each_element(html, |element, attrs| {
+        if element.eq_ignore_ascii_case("meta") {
+            let Some(content) = decoded_attribute(attrs, "content") else {
+                return;
+            };
+            let content = content.trim();
+            if content.is_empty() {
+                return;
+            }
 
-        if let Some(property) = attribute(tag, "property") {
-            properties
-                .entry(property.trim().to_ascii_lowercase())
-                .or_default()
-                .push(content.to_string());
-        }
+            if let Some(property) = decoded_attribute(attrs, "property") {
+                properties
+                    .entry(property.trim().to_ascii_lowercase())
+                    .or_default()
+                    .push(content.to_string());
+            }
 
-        if let Some(name) = attribute(tag, "name") {
-            names
-                .entry(name.trim().to_ascii_lowercase())
-                .or_default()
-                .push(content.to_string());
+            if let Some(name) = decoded_attribute(attrs, "name") {
+                names
+                    .entry(name.trim().to_ascii_lowercase())
+                    .or_default()
+                    .push(content.to_string());
+            }
+        } else if element.eq_ignore_ascii_case("link") && canonical.is_none() {
+            let Some(rel) = decoded_attribute(attrs, "rel") else {
+                return;
+            };
+            if !rel
+                .split_ascii_whitespace()
+                .any(|token| token.eq_ignore_ascii_case("canonical"))
+            {
+                return;
+            }
+
+            if let Some(href) = decoded_attribute(attrs, "href") {
+                let href = href.trim();
+                if !href.is_empty() {
+                    canonical = Some(href.to_string());
+                }
+            }
         }
-    }
+    });
 
     let title = first_meta(&properties, "og:title")
-        .or_else(|| document_title(&document))
+        .or_else(|| document_title(html))
         .map(|title| clean_text(&title))
         .filter(|title| !title.is_empty());
 
@@ -390,7 +422,7 @@ fn parse_page_metadata(html: &str, base: Option<&str>, file_name: &str) -> PageM
 
     // A canonical URL is authoritative for both the entry ID and its link.
     // Only fall back to og:url when no canonical link is present.
-    let url = canonical_url(&document)
+    let url = canonical
         .or_else(|| first_meta(&properties, "og:url"))
         .and_then(|url| resolve_url(&url, base));
 
@@ -417,45 +449,12 @@ fn first_meta(metadata: &HashMap<String, Vec<String>>, key: &str) -> Option<Stri
     metadata.get(key)?.first().cloned()
 }
 
-fn attribute(tag: &tl::HTMLTag<'_>, name: &str) -> Option<String> {
-    tag.attributes().iter().find_map(|(key, value)| {
-        if key.eq_ignore_ascii_case(name) {
-            value.map(|value| decode_html_entities(&value).into_owned())
-        } else {
-            None
-        }
-    })
+fn decoded_attribute(attrs: &str, name: &str) -> Option<String> {
+    attribute_value(attrs, name).map(|value| decode_html_entities(value).into_owned())
 }
 
-fn document_title(document: &tl::VDom<'_>) -> Option<String> {
-    let handle = document.query_selector("title")?.next()?;
-    let text = handle.get(document.parser())?.inner_text(document.parser());
-    Some(decode_html_entities(&text).into_owned())
-}
-
-fn canonical_url(document: &tl::VDom<'_>) -> Option<String> {
-    for handle in document.query_selector("link").into_iter().flatten() {
-        let Some(tag) = handle.get(document.parser()).and_then(|node| node.as_tag()) else {
-            continue;
-        };
-        let Some(rel) = attribute(tag, "rel") else {
-            continue;
-        };
-        if !rel
-            .split_ascii_whitespace()
-            .any(|token| token.eq_ignore_ascii_case("canonical"))
-        {
-            continue;
-        }
-        if let Some(href) = attribute(tag, "href") {
-            let href = href.trim();
-            if !href.is_empty() {
-                return Some(href.to_string());
-            }
-        }
-    }
-
-    None
+fn document_title(html: &str) -> Option<String> {
+    element_inner_html(html, "title").map(|title| decode_html_entities(&title).into_owned())
 }
 
 fn resolve_url(value: &str, base: Option<&str>) -> Option<String> {

@@ -1,12 +1,13 @@
 use super::toml::Conf;
-use crate::lib::filesystem::{import_conf, str_to_fs};
-use std::fs;
+use crate::lib::filesystem::import_conf;
+use std::{fs, path::Path};
 
 #[derive(Default, Debug, Clone)]
 pub struct Generate {
     pub config: Conf,
     pub output: Option<String>,
     pub filename: Option<String>,
+    error: Option<String>,
 }
 
 impl Generate {
@@ -17,8 +18,11 @@ impl Generate {
     // Method to set the configuration from a string
     pub fn conf_str(mut self, config: &str) -> Self {
         match import_conf(config) {
-            Ok(conf) => self.config = conf,
-            Err(e) => eprintln!("Error importing configuration: {e}"),
+            Ok(conf) => {
+                self.config = conf;
+                self.error = None;
+            }
+            Err(error) => self.error = Some(format!("Error importing configuration: {error}")),
         }
         self
     }
@@ -36,18 +40,25 @@ impl Generate {
     }
 
     // Method to generate HTML from this builder
-    pub fn generate(&self) {
-        let output = self.output.as_deref().unwrap_or("output");
-        let html_filename = self.filename.as_deref().unwrap_or("index.html");
-        let html_dir = format!("{output}/{html_filename}");
-
-        // Create the directory path safely (creates parent folders natively)
-        if let Err(e) = fs::create_dir_all(output) {
-            eprintln!("Error creating directory {output}: {e}");
-            return;
+    pub fn generate(&self) -> Result<(), String> {
+        if let Some(error) = &self.error {
+            return Err(error.clone());
         }
 
-        // Writes the file natively (handles creation & over-writing seamlessly)
-        str_to_fs(&html_dir, &self.config.to_html());
+        let output = self.output.as_deref().unwrap_or("output");
+        let html_filename = self.filename.as_deref().unwrap_or("index.html");
+        let html_path = Path::new(output).join(html_filename);
+
+        if let Some(parent) = html_path
+            .parent()
+            .filter(|parent| !parent.as_os_str().is_empty())
+        {
+            fs::create_dir_all(parent).map_err(|error| {
+                format!("Error creating directory {}: {error}", parent.display())
+            })?;
+        }
+
+        fs::write(&html_path, self.config.to_html())
+            .map_err(|error| format!("Error writing {}: {error}", html_path.display()))
     }
 }

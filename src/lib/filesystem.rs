@@ -7,11 +7,6 @@ pub fn fs_to_str(directory: &str) -> String {
     fs::read_to_string(directory).unwrap_or_else(|_| panic!("File could not be found: {directory}"))
 }
 
-// Function to write a string content to a file in a directory
-pub fn str_to_fs(directory: &str, content: &str) {
-    fs::write(directory, content).expect("Failed to write to file.");
-}
-
 // Custom error type for importing configs
 #[derive(Debug, Clone)]
 pub struct ConfError(CError);

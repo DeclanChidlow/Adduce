@@ -19,31 +19,38 @@ Options:
     -c, --config <path_to_configuration>
     -n, --name <file_name.html>
     -o, --output <html_destination>
+    -h, --help
+    -V, --version
 
 See `adduce feed` for Adduce Feed usage.
 "#;
 
 use config::html::Generate;
-pub use serde::{Deserialize, Serialize};
 use std::env;
+use std::process::ExitCode;
 
-fn main() {
+fn main() -> ExitCode {
     let args: Vec<String> = env::args().skip(1).collect();
 
-    if args.is_empty() {
+    if args.is_empty() || matches!(args[0].as_str(), "--help" | "-h") {
         println!("{HELP}");
-        return;
+        return ExitCode::SUCCESS;
+    }
+
+    if matches!(args[0].as_str(), "--version" | "-V") {
+        println!("adduce {}", env!("CARGO_PKG_VERSION"));
+        return ExitCode::SUCCESS;
     }
 
     // Process feed module if it's the primary command
     if args[0] == "feed" {
         lib::feed::process(args);
-        return;
+        return ExitCode::SUCCESS;
     }
 
     if args.len() % 2 != 0 {
-        println!("Invalid arguments. Ensure options are provided in pairs.");
-        return;
+        eprintln!("Invalid arguments. Ensure options are provided in pairs.");
+        return ExitCode::FAILURE;
     }
 
     let mut genconf = Generate::new();
@@ -58,10 +65,16 @@ fn main() {
             "--name" | "-n" => genconf.filename(val),
             _ => {
                 eprintln!("Unknown argument: {arg}");
-                return;
+                return ExitCode::FAILURE;
             }
         };
     }
 
-    genconf.generate();
+    match genconf.generate() {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(error) => {
+            eprintln!("{error}");
+            ExitCode::FAILURE
+        }
+    }
 }
